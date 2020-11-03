@@ -42,7 +42,7 @@ class TargetWarning(UserWarning):
 ## Target
 ##-------------------------------------------------------------------------
 class Target():
-    '''An object to contain all necessary information about a target.
+    '''An object to contain all necessary information about a sidereal target.
     
     Attributes
     ----------
