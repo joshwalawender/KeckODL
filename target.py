@@ -106,6 +106,22 @@ class Target():
     mag : dict
         A dictionary of band (str) and magnitude (float) values.
     
+    wrap : str or None
+        Values of "shortest", "south", or "north" are valid. None will be
+        interpreted as "shortest".  South is clockwise with az increasing and
+        north is counterclockwise with az decreasing.
+    
+    dra : float
+        RA differential tracking rate in arcsec/hr divided by 15 (positive
+        implies moving east).  This is the backwards compatible way of
+        supporting non-sidereal targets.  We plan to add additional support for
+        non-sidereal targets in a future upgrade.
+    
+    ddec : float
+        Dec differential tracking rate in arcsec/hr. This is the backwards
+        compatible way of supporting non-sidereal targets.  We plan to add
+        additional support for non-sidereal targets in a future upgrade.
+    
     comment : string
         An arbitrary user comment.
     
@@ -161,6 +177,8 @@ class Target():
                         'u': None, 'g': None, 'r': None, 'i': None, 'z': None,
                         'Y': None, 'J': None, 'H': None, 'K': None, 'Ks': None,
                         'L': None, 'M': None},
+                wrap=None,
+                dra=0, ddec=0,
                 comment=None
                 ):
         # Optional
@@ -176,6 +194,9 @@ class Target():
         self.PMDec = PMDec # proper motion in Dec in arcsec per year
         self.epoch = epoch # required if RAPM or DecPM is set
         self.obstime = obstime
+        self.wrap = wrap
+        self.dra = dra
+        self.ddec = ddec
         self.comment = comment
 
         if name is not None and RA is None and Dec is None:
@@ -255,6 +276,10 @@ class Target():
         if self.objecttype.lower() not in object_types:
             raise TargetError(f'Object type "{self.objecttype}" is not valid')
 
+        if self.wrap is not None:
+            if self.wrap.lower() not in ['n', 's', 'north', 'south', 'shortest']:
+                raise TargetError(f'Wrap "{self.wrap}" is not valid')
+
 
     ##-------------------------------------------------------------------------
     ## Coordinate
@@ -321,7 +346,20 @@ class Target():
         if self.PA is not None: line += f' PA={self.PA:.1f}'
         if self.RAOffset is not None: line += f' raoff={self.RAOffset}'
         if self.DecOffset is not None: line += f' decoff={self.DecOffset}'
-        if self.comment is not None: line += f' # {self.comment}'
+        if self.wrap is not None: line += f' wrap={self.wrap}'
+        if 'V' in self.mag.keys():
+            if self.mag['V'] is not None:
+                # Use lowercase v convention from starlist
+                # This is the only magnitude in the starlist specification
+                line += f' vmag={self.mag["V"]:.2f}'
+        if abs(self.dra) > 0: line += f' dra={self.dra}'
+        if abs(self.ddec) > 0: line += f' ddec={self.ddec}'
+        # Now add comments
+        line += ' #'
+        for filt in self.mag.keys():
+            if self.mag[filt] is not None:
+                line += f' {filt}mag={self.mag[filt]:.2f}'
+        if self.comment is not None: line += f' {self.comment}'
         return line
 
 
@@ -337,6 +375,7 @@ class Target():
         for band in self.mag.keys():
             if self.mag.get(band, None) is not None:
                 mags[band] = self.mag.get(band)
+        # Convert obstime
         if self.obstime is None:
             obstime = self.obstime
         elif type(self.obstime) in [float, int]:
@@ -361,6 +400,9 @@ class Target():
             'PMDec': self.PMDec,
             'obstime': obstime,
             'mag': mags,
+            'wrap': self.wrap,
+            'dra': self.dra,
+            'ddec': self.ddec,
             'comment': self.comment,
         }
         return TDL_dict
