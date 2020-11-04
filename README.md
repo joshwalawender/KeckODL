@@ -1,3 +1,3 @@
-# KeckTarget
+# KeckODL
 
-Note, this does not yet support non-sidereal objects.  Coming soon.
+Note, Target does not yet support non-sidereal objects.
