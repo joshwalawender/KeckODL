@@ -27,6 +27,10 @@ class SequenceElement():
         self.config = config
 
 
+    def validate(self):
+        pass
+
+
 ##-------------------------------------------------------------------------
 ## Sequence
 ##-------------------------------------------------------------------------
@@ -34,5 +38,8 @@ class Sequence(UserList):
     '''An ordered list of SequenceElements
     '''
     def validate(self):
-        for t in self.data:
-            t.validate()
+        for i,s in enumerate(self.data):
+            if type(s) != SequenceElement:
+                raise SequenceError(f'A Sequence must be made up of SequenceElements. '
+                                    f'Element {i} is type {type(s)}.')
+            s.validate()
