@@ -36,7 +36,9 @@ class SequenceElement():
     def estimate_time(self):
         '''Estimate the wall clock time to complete the sequence.
         '''
-        raise NotImplementedError()
+        return {'shutter open time': len(self.pattern) * self.detconfig.exptime * self.repeat,
+                  'wall clock time': len(self.pattern) * self.detconfig.exptime * self.repeat,
+                }
 
 
     def __str__(self):
@@ -64,7 +66,14 @@ class Sequence(UserList):
     def estimate_time(self):
         '''Estimate the wall clock time to complete the sequence.
         '''
-        raise NotImplementedError()
+        estimate = {'shutter open time': 0, 'wall clock time': 0}
+        for s in self.data:
+            estimate['shutter open time'] += s.estimate_time()['shutter open time']
+            estimate['wall clock time'] += s.estimate_time()['wall clock time']
+        print(f"Shutter Open Time: {estimate['shutter open time']} s "
+              f"({estimate['shutter open time']/3600:.1f} hrs)")
+        print(f"Wall Clock Time: {estimate['wall clock time']} s "
+              f"({estimate['wall clock time']/3600:.1f} hrs)")
 
 
     def __str__(self):
