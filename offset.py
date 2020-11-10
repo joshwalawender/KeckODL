@@ -5,12 +5,10 @@ from astropy import units as u
 from collections import UserList
 
 
-class OffsetError(Exception):
-    pass
+class OffsetError(Exception): pass
 
 
-class OffsetWarning(UserWarning):
-    pass
+class OffsetWarning(UserWarning): pass
 
 
 
@@ -113,9 +111,6 @@ class TelescopeOffset():
 
     def __repr__(self):
         return f'{self.dx:+6.1f}|{self.dy:+6.1f}|{self.dr:+8.1f}|{self.name:>8s}'
-
-
-
 
 
 ##-------------------------------------------------------------------------

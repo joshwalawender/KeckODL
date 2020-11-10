@@ -30,12 +30,10 @@ valid_PAs = {'pa': [0, 360],
             }
 
 
-class TargetError(Exception):
-    pass
+class TargetError(Exception): pass
 
 
-class TargetWarning(UserWarning):
-    pass
+class TargetWarning(UserWarning): pass
 
 
 ##-------------------------------------------------------------------------
@@ -408,7 +406,7 @@ class Target():
         return TDL_dict
 
 
-    def to_TDL(self):
+    def to_YAML(self):
         '''Return string corresponding to a Target Description Language (TDL)
         YAML entry.
         '''
@@ -427,7 +425,11 @@ class Target():
 ## TargetList
 ##-------------------------------------------------------------------------
 class TargetList(UserList):
+    '''An object to hold a list of Target objects.
+    '''
     def validate(self):
+        '''Run the validate method on all Targets in the list.
+        '''
         for t in self.data:
             t.validate()
 
@@ -444,6 +446,8 @@ class TargetList(UserList):
 
 
     def write(self, file):
+        '''Write the target list to a YAML formatted file.
+        '''
         self.validate()
         p = Path(file).expanduser().absolute()
         if p.exists(): p.unlink()
@@ -453,6 +457,8 @@ class TargetList(UserList):
 
 
     def read(self, file):
+        '''Read targets from a YAML formatted file.
+        '''
         p = Path(file).expanduser().absolute()
         if p.exists() is False:
             raise FileNotFoundError
@@ -480,6 +486,9 @@ class TargetList(UserList):
 
 
     def to_starlist(self):
+        '''Return a string representation of the Targets which matches the
+        formatting specification of a Keck star list.
+        '''
         self.validate()
         starlist_str = ''
         for t in self.data:
@@ -488,6 +497,8 @@ class TargetList(UserList):
 
 
     def write_starlist(self, file):
+        '''Write the target list to a Keck star list formatted file.
+        '''
         self.validate()
         p = Path(file).expanduser().absolute()
         if p.exists(): p.unlink()
