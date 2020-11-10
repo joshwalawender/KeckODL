@@ -56,6 +56,7 @@ SkyFrame = OffsetFrame()
 KCWI_SmallSlicer_Frame = OffsetFrame(pixelscale=0.35*u.arcsec/u.pixel, PA='ROTPPOSN')
 KCWI_MediumSlicer_Frame = OffsetFrame(pixelscale=0.70*u.arcsec/u.pixel, PA='ROTPPOSN')
 KCWI_LargeSlicer_Frame = OffsetFrame(pixelscale=1.35*u.arcsec/u.pixel, PA='ROTPPOSN')
+MOSFIRE = OffsetFrame(pixelscale=0.1798*u.arcsec/u.pixel, PA='ROTPPOSN')
 
 
 ##-------------------------------------------------------------------------
@@ -65,11 +66,12 @@ class TelescopeOffset():
     '''Describes a telescope offset for the purposes of including it in an
     observing sequence.
     '''
-    def __init__(self, dx=0, dy=0, dr=0, relative=False):
+    def __init__(self, dx=0, dy=0, dr=0, relative=False, name=''):
         self.dx = dx
         self.dy = dy
         self.dr = dr
         self.relative = relative
+        self.name = name
 
 
     def validate(self):
@@ -106,11 +108,11 @@ class TelescopeOffset():
 
 
     def __str__(self):
-        return f'{self.dx:+6.1f}|{self.dy:+6.1f}|{self.dr:+8.1f}'
+        return f'{self.dx:+6.1f}|{self.dy:+6.1f}|{self.dr:+8.1f}|{self.name:>8s}'
 
 
     def __repr__(self):
-        return f'{self.dx:+6.1f}|{self.dy:+6.1f}|{self.dr:+8.1f}'
+        return f'{self.dx:+6.1f}|{self.dy:+6.1f}|{self.dr:+8.1f}|{self.name:>8s}'
 
 
 
@@ -134,8 +136,8 @@ class OffsetPattern(UserList):
 
 
     def __repr__(self):
-        output = [' dx(")| dy(")| dr(deg)',
-                  f'{"-"*6:6s}|{"-"*6:6s}|{"-"*8:8s}',]
+        output = [' dx(")| dy(")| dr(deg)|    name',
+                  f'{"-"*6:6s}|{"-"*6:6s}|{"-"*8:8s}|{"-"*8:8s}',]
         for item in self.data:
             output.append(item.__str__())
         return "\n".join(output)
@@ -149,10 +151,10 @@ class ABBA(OffsetPattern):
         super().__init__()
         self.name = f'ABBA ({offset:.1f})'
         self.frame = SkyFrame
-        self.data = [TelescopeOffset(dx=0, dy=+offset),
-                     TelescopeOffset(dx=0, dy=-offset),
-                     TelescopeOffset(dx=0, dy=-offset),
-                     TelescopeOffset(dx=0, dy=+offset),
+        self.data = [TelescopeOffset(dx=0, dy=+offset, name="A"),
+                     TelescopeOffset(dx=0, dy=-offset, name="B"),
+                     TelescopeOffset(dx=0, dy=-offset, name="B"),
+                     TelescopeOffset(dx=0, dy=+offset, name="A"),
                      ]
 
 
@@ -161,7 +163,7 @@ class Stare(OffsetPattern):
         super().__init__()
         self.name = 'Stare'
         self.frame = SkyFrame
-        self.data = [TelescopeOffset(dx=0, dy=0)]
+        self.data = [TelescopeOffset(dx=0, dy=0, name='base')]
 
 
 class StarSkyStar(OffsetPattern):
@@ -169,7 +171,21 @@ class StarSkyStar(OffsetPattern):
         super().__init__()
         self.name = f'StarSkyStar ({dx:.0f} {dy:.0f})'
         self.frame = SkyFrame
-        self.data = [TelescopeOffset(dx=0, dy=0),
-                     TelescopeOffset(dx=dx, dy=dy),
-                     TelescopeOffset(dx=0, dy=0),
+        self.data = [TelescopeOffset(dx=0, dy=0, name='star'),
+                     TelescopeOffset(dx=dx, dy=dy, name='sky'),
+                     TelescopeOffset(dx=0, dy=0, name='star'),
+                     ]
+
+
+class Long2pos(OffsetPattern):
+    '''Note that the offset values here are not correct.
+    '''
+    def __init__(self):
+        super().__init__()
+        self.name = f'long2pos'
+        self.frame = MOSFIRE
+        self.data = [TelescopeOffset(dx=+45, dy=-23, name="A"),
+                     TelescopeOffset(dx=+45, dy=-9, name="B"),
+                     TelescopeOffset(dx=-45, dy=+9, name="A"),
+                     TelescopeOffset(dx=-45, dy=+23, name="B"),
                      ]
