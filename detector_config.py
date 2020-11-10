@@ -4,14 +4,13 @@
 from pathlib import Path
 import re
 from warnings import warn
+import yaml
 
 
-class DetectorConfigError(Exception):
-    pass
+class DetectorConfigError(Exception): pass
 
 
-class DetectorConfigWarning(UserWarning):
-    pass
+class DetectorConfigWarning(UserWarning): pass
 
 
 ##-------------------------------------------------------------------------
@@ -36,8 +35,30 @@ class DetectorConfig():
         self.readoutmode = readoutmode
 
 
+    def validate(self):
+        pass
+
+
     def to_dict(self):
-        return {'exptime': self.exptime, 'readoutmode': self.readoutmode}
+        return {'name': self.name,
+                'instrument': self.instrument,
+                'exptime': self.exptime,
+                'readoutmode': self.readoutmode}
+
+
+    def to_YAML(self):
+        '''Return string corresponding to a Detector Config Description
+        Language (DCDL) YAML entry.
+        '''
+        return yaml.dump(self.to_dict())
+
+
+    def write(self, file):
+        self.validate()
+        p = Path(file).expanduser().absolute()
+        if p.exists(): p.unlink()
+        with open(p, 'w') as FO:
+            FO.write(yaml.dump(self.to_dict()))
 
 
     def __str__(self):

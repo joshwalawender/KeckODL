@@ -3,14 +3,13 @@
 ## Import General Tools
 from pathlib import Path
 from astropy import units as u
+import yaml
 
 
-class InstrumentConfigError(Exception):
-    pass
+class InstrumentConfigError(Exception): pass
 
 
-class InstrumentConfigWarning(UserWarning):
-    pass
+class InstrumentConfigWarning(UserWarning): pass
 
 
 ##-------------------------------------------------------------------------
@@ -22,6 +21,30 @@ class InstrumentConfig():
     def __init__(self, name='GenericInstrumentConfig'):
         self.name = name
         self.instrument = 'unknown'
+
+
+    def validate(self):
+        pass
+
+
+    def to_dict(self):
+        return {'name': self.name,
+                'instrument': self.instrument}
+
+
+    def to_YAML(self):
+        '''Return string corresponding to a Detector Config Description
+        Language (DCDL) YAML entry.
+        '''
+        return yaml.dump(self.to_dict())
+
+
+    def write(self, file):
+        self.validate()
+        p = Path(file).expanduser().absolute()
+        if p.exists(): p.unlink()
+        with open(p, 'w') as FO:
+            FO.write(yaml.dump(self.to_dict()))
 
 
     def __str__(self):
@@ -47,8 +70,6 @@ class KCWIblueConfig(InstrumentConfig):
         self.pwave = cwave-300 if pwave is None else pwave
 
 
-    ##-------------------------------------------------------------------------
-    ## Validate
     def validate(self):
         '''Check values and verify that they meet assumptions.
         
@@ -57,6 +78,15 @@ class KCWIblueConfig(InstrumentConfig):
         Warn:
         '''
         pass
+
+
+    def to_dict(self):
+        output = super().to_dict()
+        output['slicer'] = self.slicer
+        output['grating'] = self.grating
+        output['cwave'] = self.cwave
+        output['pwave'] = self.pwave
+        return output
 
 
     def __str__(self):
@@ -116,3 +146,11 @@ class MOSFIREConfig(InstrumentConfig):
         Warn:
         '''
         pass
+
+
+    def to_dict(self):
+        output = super().to_dict()
+        output['filter'] = self.filter
+        output['mode'] = self.mode
+        output['mask'] = self.mask
+        return output
