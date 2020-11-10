@@ -22,7 +22,8 @@ class OffsetFrame():
     
     Examples: Sky, Detector, Slit, Guider
     '''
-    def __init__(self, pixelscale=1*u.arcsec/u.pixel, PA=0):
+    def __init__(self, name='GenericFrame', pixelscale=1*u.arcsec/u.pixel, PA=0):
+        self.name = name
         self.pixelscale = pixelscale
         self._PA = PA
         if isinstance(self.PA, u.Quantity):
@@ -47,14 +48,30 @@ class OffsetFrame():
             return self._PA
 
 
+    def __str__(self):
+        return self.name
+
+
+    def __repr__(self):
+        return self.name
+
+
 ##-------------------------------------------------------------------------
 ## Some actual frames with values
 ##-------------------------------------------------------------------------
-SkyFrame = OffsetFrame()
-KCWI_SmallSlicer_Frame = OffsetFrame(pixelscale=0.35*u.arcsec/u.pixel, PA='ROTPPOSN')
-KCWI_MediumSlicer_Frame = OffsetFrame(pixelscale=0.70*u.arcsec/u.pixel, PA='ROTPPOSN')
-KCWI_LargeSlicer_Frame = OffsetFrame(pixelscale=1.35*u.arcsec/u.pixel, PA='ROTPPOSN')
-MOSFIRE = OffsetFrame(pixelscale=0.1798*u.arcsec/u.pixel, PA='ROTPPOSN')
+SkyFrame = OffsetFrame(name='SkyFrame')
+KCWI_SmallSlicer_Frame = OffsetFrame(name='KCWI_SmallSlicer',
+                                     pixelscale=0.35*u.arcsec/u.pixel,
+                                     PA='ROTPPOSN')
+KCWI_MediumSlicer_Frame = OffsetFrame(name='KCWI_MediumSlicer',
+                                      pixelscale=0.70*u.arcsec/u.pixel,
+                                      PA='ROTPPOSN')
+KCWI_LargeSlicer_Frame = OffsetFrame(name='KCWI_LargeSlicer',
+                                     pixelscale=1.35*u.arcsec/u.pixel,
+                                     PA='ROTPPOSN')
+MOSFIRE = OffsetFrame(name='MOSFIRE Detector',
+                      pixelscale=0.1798*u.arcsec/u.pixel,
+                      PA='ROTPPOSN')
 
 
 ##-------------------------------------------------------------------------
@@ -131,7 +148,8 @@ class OffsetPattern(UserList):
 
 
     def __repr__(self):
-        output = [' dx(")| dy(")| dr(deg)|    name',
+        output = [f'Frame: {self.frame}',
+                  f' dx(")| dy(")| dr(deg)|    name',
                   f'{"-"*6:6s}|{"-"*6:6s}|{"-"*8:8s}|{"-"*8:8s}',]
         for item in self.data:
             output.append(item.__str__())
