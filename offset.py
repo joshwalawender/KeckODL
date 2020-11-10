@@ -2,6 +2,7 @@
 
 ## Import General Tools
 from astropy import units as u
+from collections import UserList
 
 
 class OffsetError(Exception):
@@ -23,7 +24,7 @@ class OffsetFrame():
     
     Examples: Sky, Detector, Slit, Guider
     '''
-    def __init__(self, pixelscale=1*u.arcsec/u.pixel, PA='ROTPPOSN'):
+    def __init__(self, pixelscale=1*u.arcsec/u.pixel, PA=0):
         self.pixelscale = pixelscale
         self._PA = PA
         if isinstance(self.PA, u.Quantity):
@@ -51,9 +52,10 @@ class OffsetFrame():
 ##-------------------------------------------------------------------------
 ## Some actual frames with values
 ##-------------------------------------------------------------------------
-KCWI_SmallSlicer_Frame = OffsetFrame(pixelscale=0.35*U.arcsec/u.pixel, PA='ROTPPOSN')
-KCWI_MediumSlicer_Frame = OffsetFrame(pixelscale=0.70*U.arcsec/u.pixel, PA='ROTPPOSN')
-KCWI_LargeSlicer_Frame = OffsetFrame(pixelscale=1.35*U.arcsec/u.pixel, PA='ROTPPOSN')
+SkyFrame = OffsetFrame()
+KCWI_SmallSlicer_Frame = OffsetFrame(pixelscale=0.35*u.arcsec/u.pixel, PA='ROTPPOSN')
+KCWI_MediumSlicer_Frame = OffsetFrame(pixelscale=0.70*u.arcsec/u.pixel, PA='ROTPPOSN')
+KCWI_LargeSlicer_Frame = OffsetFrame(pixelscale=1.35*u.arcsec/u.pixel, PA='ROTPPOSN')
 
 
 ##-------------------------------------------------------------------------
@@ -63,8 +65,7 @@ class TelescopeOffset():
     '''Describes a telescope offset for the purposes of including it in an
     observing sequence.
     '''
-    def __init__(self, frame=None, dx=0, dy=0, dr=0, relative=False):
-        self.frame = frame
+    def __init__(self, dx=0, dy=0, dr=0, relative=False):
         self.dx = dx
         self.dy = dy
         self.dr = dr
@@ -80,9 +81,95 @@ class TelescopeOffset():
         if issubclass(self.frame, OffsetFrame) is False:
             raise OffsetError(f'"{self.frame}" is not a known OffsetFrame')
         # Are the offset values valid
-        if type(self.dx) not in [float, int, u.Quantity]:
-            raise OffsetError(f'Value for dx "{self.frame}" is not valid type')
-        if type(self.dy) not in [float, int, u.Quantity]:
-            raise OffsetError(f'Value for dy "{self.frame}" is not valid type')
+        if type(self.dx) in [float, int]:
+            warn('No offset unit given, assuming arcseconds',
+                          category=OffsetWarning)
+            self.dx *= u.arcsec
+        elif type(self.dx) in [u.Quantity]:
+            try:
+                self.dx.to(u.arcsec)
+            except:
+                raise OffsetError(f'dx offset {self.dx} could not be converted to arcsec')
+        else:
+            raise OffsetError(f'dx offset {self.dx} could not be parsed')
+        if type(self.dy) in [float, int]:
+            warn('No offset unit given, assuming arcseconds',
+                          category=OffsetWarning)
+            self.dy *= u.arcsec
+        elif type(self.dy) in [u.Quantity]:
+            try:
+                self.dy.to(u.arcsec)
+            except:
+                raise OffsetError(f'dy offset {self.dy} could not be converted to arcsec')
+        else:
+            raise OffsetError(f'dy offset {self.dy} could not be parsed')
 
 
+    def __str__(self):
+        return f'{self.dx:+6.1f}|{self.dy:+6.1f}|{self.dr:+8.1f}'
+
+
+    def __repr__(self):
+        return f'{self.dx:+6.1f}|{self.dy:+6.1f}|{self.dr:+8.1f}'
+
+
+
+
+
+##-------------------------------------------------------------------------
+## OffsetPattern
+##-------------------------------------------------------------------------
+class OffsetPattern(UserList):
+    '''Describes a telescope offset for the purposes of including it in an
+    observing sequence.
+    '''
+    def __init__(self, frame=None, name=''):
+        super().__init__()
+        self.name = name
+        self.frame = frame
+
+
+    def __str__(self):
+        return self.name
+
+
+    def __repr__(self):
+        output = [' dx(")| dy(")| dr(deg)',
+                  f'{"-"*6:6s}|{"-"*6:6s}|{"-"*8:8s}',]
+        for item in self.data:
+            output.append(item.__str__())
+        return "\n".join(output)
+
+
+##-------------------------------------------------------------------------
+## Per-Defined Patterns
+##-------------------------------------------------------------------------
+class ABBA(OffsetPattern):
+    def __init__(self, offset=2):
+        super().__init__()
+        self.name = f'ABBA ({offset:.1f})'
+        self.frame = SkyFrame
+        self.data = [TelescopeOffset(dx=0, dy=+offset),
+                     TelescopeOffset(dx=0, dy=-offset),
+                     TelescopeOffset(dx=0, dy=-offset),
+                     TelescopeOffset(dx=0, dy=+offset),
+                     ]
+
+
+class Stare(OffsetPattern):
+    def __init__(self):
+        super().__init__()
+        self.name = 'Stare'
+        self.frame = SkyFrame
+        self.data = [TelescopeOffset(dx=0, dy=0)]
+
+
+class StarSkyStar(OffsetPattern):
+    def __init__(self, dx=0, dy=0):
+        super().__init__()
+        self.name = f'StarSkyStar ({dx:.0f} {dy:.0f})'
+        self.frame = SkyFrame
+        self.data = [TelescopeOffset(dx=0, dy=0),
+                     TelescopeOffset(dx=dx, dy=dy),
+                     TelescopeOffset(dx=0, dy=0),
+                     ]

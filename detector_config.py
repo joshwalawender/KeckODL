@@ -31,12 +31,21 @@ class DetectorConfig():
     '''
     def __init__(self, exptime=None, readoutmode=None):
         self.instrument = None
+        self.name = 'GenericDetectorConfig'
         self.exptime = exptime
         self.readoutmode = readoutmode
+
 
     def to_dict(self):
         return {'exptime': self.exptime, 'readoutmode': self.readoutmode}
 
+
+    def __str__(self):
+        return self.name
+
+
+    def __repr__(self):
+        return self.name
 
 
 ##-------------------------------------------------------------------------
@@ -53,6 +62,13 @@ class IRDetectorConfig(DetectorConfig):
     def __init__(self, exptime=None, readoutmode='CDS', coadds=1):
         super().__init__(exptime=exptime, readoutmode=readoutmode)
         self.coadds = coadds
+        self.instrument = 'GenericIR'
+        self.set_name()
+
+
+    def set_name(self):
+        exptime = self.exptime if self.exptime is not None else -1
+        self.name = f'{exptime:.1f}s ({self.readoutmode}, {self.coadds:d} coadds)'
 
 
     def to_dict(self):
@@ -85,10 +101,19 @@ class VisibleDetectorConfig(DetectorConfig):
     def __init__(self, exptime=None, readoutmode=None, ampmode=None,
                  dark=False, binning='1x1', window=None):
         super().__init__(exptime=exptime, readoutmode=readoutmode)
+        self.instrument = 'GenericVis'
         self.ampmode = ampmode
         self.dark = dark
         self.binning = binning
         self.window = window
+        self.set_name()
+
+
+    def set_name(self):
+        exptime = self.exptime if self.exptime is not None else -1
+        ampmode = self.ampmode if self.ampmode is not None else 'unknown'
+        dark_string = {True: ', Dark', False: ''}[self.dark]
+        self.name = f'{exptime:.1f}s ({ampmode}{dark_string})'
 
 
     def to_dict(self):
@@ -106,8 +131,10 @@ class VisibleDetectorConfig(DetectorConfig):
 class NIRESDetectorConfig(IRDetectorConfig):
     '''An object to hold information about NIRES detector configuration.
     '''
-    def __init__(self):
+    def __init__(self, exptime=None, readoutmode='CDS', coadds=1):
+        super().__init__(exptime=exptime, readoutmode=readoutmode, coadds=coadds)
         self.instrument = 'NIRES'
+        self.set_name()
 
 
     ##-------------------------------------------------------------------------
@@ -132,13 +159,52 @@ class NIRESDetectorConfig(IRDetectorConfig):
 
 
 ##-------------------------------------------------------------------------
-## KCWIbDetectorConfig
+## MOSFIREDetectorConfig
 ##-------------------------------------------------------------------------
-class KCWIbDetectorConfig(VisibleDetectorConfig):
+class MOSFIREDetectorConfig(IRDetectorConfig):
+    '''An object to hold information about NIRES detector configuration.
+    '''
+    def __init__(self, exptime=None, readoutmode='CDS', coadds=1):
+        super().__init__(exptime=exptime, readoutmode=readoutmode, coadds=coadds)
+        self.instrument = 'MOSFIRE'
+        self.set_name()
+
+
+    ##-------------------------------------------------------------------------
+    ## Validate
+    def validate(self):
+        '''Check values and verify that they meet assumptions.
+        
+        Check:
+        - readoutmode is either CDS or MCDSn where n is 1-32.
+        
+        Warn:
+        '''
+        parse_readoutmode = re.match('(M?)CDS(\d*)', self.readoutmode)
+        if parse_readoutmode is None:
+            raise DetectorConfigError(f'Readout Mode "{self.readoutmode}" '
+                                      f'is not CDS or MCDSn')
+        else:
+            nreads = int(parse_readoutmode.group(2))
+            if nreads > 32:
+                raise DetectorConfigError(f'MCDS{nreads} not supported '
+                                          f'(only 1-16 are supported)')
+
+
+##-------------------------------------------------------------------------
+## KCWIblueDetectorConfig
+##-------------------------------------------------------------------------
+class KCWIblueDetectorConfig(VisibleDetectorConfig):
     '''An object to hold information about KCWI Blue detector configuration.
     '''
-    def __init__(self):
+    def __init__(self, exptime=None, readoutmode=None, ampmode=10,
+                 dark=False, binning='1x1', window=None):
+        super().__init__(exptime=exptime, readoutmode=readoutmode,
+                         ampmode=ampmode, dark=dark, binning=binning,
+                         window=window)
         self.instrument = 'KCWIblue'
+        self.set_name()
+
 
     ##-------------------------------------------------------------------------
     ## Validate
