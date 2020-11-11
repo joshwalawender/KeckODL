@@ -42,11 +42,11 @@ class SequenceElement():
 
 
     def __str__(self):
-        return f'{str(self.pattern):19s}|{str(self.detconfig):29s}|{str(self.instconfig):29s}|{self.repeat:6d}'
+        return f'{str(self.pattern):19s}|{self.repeat:6d} |{str(self.detconfig):29s}|{str(self.instconfig):45s}'
 
 
     def __repr__(self):
-        return f'{str(self.pattern):19s}|{str(self.detconfig):29s}|{str(self.instconfig):29s}|{self.repeat:6d}'
+        return f'{str(self.pattern):19s}|{self.repeat:6d} |{str(self.detconfig):29s}|{str(self.instconfig):45s}'
 
 
 ##-------------------------------------------------------------------------
@@ -77,16 +77,16 @@ class Sequence(UserList):
 
 
     def __str__(self):
-        output = [f'{"Pattern":19s}|{"DetectorConfig":29s}|{"InstrumentConfig":29s}|{"repeat":6s}',
-                  f'{"-"*19:19s}|{"-"*29:29s}|{"-"*29:29s}|{"-"*6:6s}',]
+        output = [f'{"Pattern":19s}|{"repeat":7s}|{"DetectorConfig":29s}|{"InstrumentConfig":45s}',
+                  f'{"-"*19:19s}|{"-"*7:7s}|{"-"*29:29s}|{"-"*45:45s}',]
         for item in self.data:
             output.append(item.__str__())
         return "\n".join(output)
 
 
     def __repr__(self):
-        output = [f'{"Pattern":19s}|{"DetectorConfig":29s}|{"InstrumentConfig":29s}|{"repeat":6s}',
-                  f'{"-"*19:19s}|{"-"*29:29s}|{"-"*29:29s}|{"-"*6:6s}',]
+        output = [f'{"Pattern":19s}|{"repeat":7s}|{"DetectorConfig":29s}|{"InstrumentConfig":45s}',
+                  f'{"-"*19:19s}|{"-"*7:7s}|{"-"*29:29s}|{"-"*45:45s}',]
         for item in self.data:
             output.append(item.__str__())
         return "\n".join(output)

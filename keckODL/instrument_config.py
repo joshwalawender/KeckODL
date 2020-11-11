@@ -4,7 +4,11 @@
 from pathlib import Path
 from astropy import units as u
 import yaml
+from copy import deepcopy
 
+from .sequence import SequenceElement, Sequence
+from .offset import Stare
+from .detector_config import MOSFIREDetectorConfig, KCWIblueDetectorConfig
 
 class InstrumentConfigError(Exception): pass
 
@@ -45,6 +49,20 @@ class InstrumentConfig():
         if p.exists(): p.unlink()
         with open(p, 'w') as FO:
             FO.write(yaml.dump(self.to_dict()))
+
+
+    def arcs(self, lampname):
+        '''This method should be overridden on each instrument to be the arcs
+        configuration for the science config described.
+        '''
+        pass
+
+
+    def domeflats(self, off=False):
+        '''This method should be overridden on each instrument to be the dome
+        flat configuration for the science config described.
+        '''
+        pass
 
 
     def __str__(self):
@@ -133,7 +151,13 @@ class MOSFIREConfig(InstrumentConfig):
         self.mode = mode
         self.filter = filter
         self.mask = mask
+        self.arclamp = None
+        self.domeflatlamp = None
         self.name = f'{self.mask} {self.filter}-{self.mode}'
+        if self.arclamp is not None:
+            self.name += f' arclamp={self.arclamp}'
+        if self.domeflatlamp is not None:
+            self.name += f' domeflatlamp={self.domeflatlamp}'
 
 
     ##-------------------------------------------------------------------------
@@ -154,3 +178,48 @@ class MOSFIREConfig(InstrumentConfig):
         output['mode'] = self.mode
         output['mask'] = self.mask
         return output
+
+
+    def arcs(self, lampname):
+        '''
+        '''
+        arcs = deepcopy(self)
+        arcs.arclamp = lampname
+        arcs.name += f' arclamp={arcs.arclamp}'
+        return arcs
+
+
+    def domeflats(self, off=False):
+        '''
+        '''
+        domeflats = deepcopy(self)
+        domeflats.domeflatlamp = not off
+        domeflats.name += f' domeflatlamp={domeflats.domeflatlamp}'
+        return domeflats
+
+
+    def cals(self):
+        '''
+        '''
+        mosfire_1s = MOSFIREDetectorConfig(exptime=1, readoutmode='CDS')
+        mosfire_11s = MOSFIREDetectorConfig(exptime=11, readoutmode='CDS')
+
+        cals = Sequence()
+        cals.append(SequenceElement(pattern=Stare(),
+                                    detconfig=mosfire_11s,
+                                    instconfig=self.domeflats(),
+                                    repeat=7))
+        if self.filter == 'K':
+            cals.append(SequenceElement(pattern=Stare(),
+                                        detconfig=mosfire_11s,
+                                        instconfig=self.domeflats(off=True),
+                                        repeat=7))
+            cals.append(SequenceElement(pattern=Stare(),
+                                        detconfig=mosfire_1s,
+                                        instconfig=self.arcs('Ne'),
+                                        repeat=2))
+            cals.append(SequenceElement(pattern=Stare(),
+                                        detconfig=mosfire_1s,
+                                        instconfig=self.arcs('Ar'),
+                                        repeat=2))
+        return cals
