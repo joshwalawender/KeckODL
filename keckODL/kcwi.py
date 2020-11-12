@@ -4,12 +4,29 @@
 from pathlib import Path
 import re
 from warnings import warn
+from copy import deepcopy
 import yaml
 from astropy import units as u
 
 
 from .detector_config import VisibleDetectorConfig
 from .instrument_config import InstrumentConfig
+from .offset import OffsetFrame, Stare
+from .sequence import Sequence, SequenceElement
+
+
+##-------------------------------------------------------------------------
+## KCWI Frames
+##-------------------------------------------------------------------------
+KCWI_SmallSlicer_Frame = OffsetFrame(name='KCWI_SmallSlicer',
+                                     pixelscale=0.35*u.arcsec/u.pixel,
+                                     PA='ROTPPOSN')
+KCWI_MediumSlicer_Frame = OffsetFrame(name='KCWI_MediumSlicer',
+                                      pixelscale=0.70*u.arcsec/u.pixel,
+                                      PA='ROTPPOSN')
+KCWI_LargeSlicer_Frame = OffsetFrame(name='KCWI_LargeSlicer',
+                                     pixelscale=1.35*u.arcsec/u.pixel,
+                                     PA='ROTPPOSN')
 
 
 ##-------------------------------------------------------------------------
@@ -18,12 +35,14 @@ from .instrument_config import InstrumentConfig
 class KCWIblueDetectorConfig(VisibleDetectorConfig):
     '''An object to hold information about KCWI Blue detector configuration.
     '''
-    def __init__(self, exptime=None, readoutmode=None, ampmode=10,
-                 dark=False, binning='1x1', window=None):
+    def __init__(self, exptime=None, readoutmode=None, ampmode=9,
+                 dark=False, binning='1x1', window=None, gain=10, ccdmode=1):
         super().__init__(exptime=exptime, readoutmode=readoutmode,
                          ampmode=ampmode, dark=dark, binning=binning,
                          window=window)
         self.instrument = 'KCWIblue'
+        self.gain = gain
+        self.ccdmode = ccdmode
         self.set_name()
 
 
@@ -35,6 +54,7 @@ class KCWIblueDetectorConfig(VisibleDetectorConfig):
         Check:
         
         Warn:
+        - Window is not used
         '''
         pass
 
@@ -45,13 +65,31 @@ class KCWIblueDetectorConfig(VisibleDetectorConfig):
 class KCWIblueConfig(InstrumentConfig):
     '''An object to hold information about KCWI Blue configuration.
     '''
-    def __init__(self, slicer='medium', grating='BH3', cwave=4800, pwave=None):
+    def __init__(self, slicer='medium', grating='BH3', filter='KBlue',
+                 cwave=4800, pwave=None, nandsmask=False, bluefocus=None,
+                 calmirror='Sky', calobj='Dark', arclamp=None,
+                 domeflatlamp=None, polarizer='Sky'):
         super().__init__()
         self.instrument = 'KCWIblue'
         self.slicer = slicer
         self.grating = grating
+        self.filter = filter
+        self.nandsmask = nandsmask
+        self.bluefocus = bluefocus
+        self.calmirror = calmirror
+        self.calobj = calobj
+        self.arclamp = arclamp
+        self.domeflatlamp = domeflatlamp
+        self.polarizer = polarizer
         self.cwave = cwave
         self.pwave = cwave-300 if pwave is None else pwave
+        self.name = f'{self.slicer} {self.grating} {self.cwave*u.A:.0f}'
+        if self.calobj != 'Dark':
+            self.name += f' calobj={self.calobj}'
+        if self.arclamp is not None:
+            self.name += f' arclamp={self.arclamp}'
+        if self.domeflatlamp is not None:
+            self.name += f' domeflatlamp={self.domeflatlamp}'
 
 
     def validate(self):
@@ -67,19 +105,93 @@ class KCWIblueConfig(InstrumentConfig):
     def to_dict(self):
         output = super().to_dict()
         output['slicer'] = self.slicer
-        output['grating'] = self.grating
+        output['bluegrating'] = self.bluegrating
+        output['bluefilter'] = self.bluefilter
+        output['nandsmask'] = self.nandsmask
+        output['bluefocus'] = self.bluefocus
+        output['calmirror'] = self.calmirror
+        output['calobj'] = self.calobj
+        output['polarizer'] = self.polarizer
         output['cwave'] = self.cwave
         output['pwave'] = self.pwave
         return output
 
 
+    def arcs(self, lampname):
+        '''
+        '''
+        arcs = deepcopy(self)
+        arcs.arclamp = lampname
+        arcs.calobj = 'FlatA'
+        arcs.name += f' arclamp={arcs.arclamp}'
+        arcs.name += f' calobj={arcs.calobj}'
+        return arcs
+
+
+    def contbars(self):
+        '''
+        '''
+        contbars = deepcopy(self)
+        contbars.calobj = 'MedBarsA'
+        contbars.arclamp = 'CONT'
+        contbars.name += f' arclamp={contbars.arclamp}'
+        contbars.name += f' calobj={contbars.calobj}'
+        return contbars
+
+
+    def domeflats(self, off=False):
+        '''
+        '''
+        domeflats = deepcopy(self)
+        domeflats.domeflatlamp = not off
+        domeflats.name += f' domeflatlamp={domeflats.domeflatlamp}'
+        return domeflats
+
+
+    def cals(self, internal=True, domeflats=True):
+        '''
+        '''
+        kcwib_0s_dark = KCWIblueDetectorConfig(exptime=0, dark=True)
+        kcwib_6s = KCWIblueDetectorConfig(exptime=6)
+        kcwib_30s = KCWIblueDetectorConfig(exptime=30)
+        kcwib_45s = KCWIblueDetectorConfig(exptime=45)
+        kcwib_100s = KCWIblueDetectorConfig(exptime=100)
+
+        cals = Sequence()
+        if internal is True:
+            cals.append(SequenceElement(pattern=Stare(),
+                                        detconfig=kcwib_6s,
+                                        instconfig=self.contbars(),
+                                        repeat=1))
+            cals.append(SequenceElement(pattern=Stare(),
+                                        detconfig=kcwib_30s,
+                                        instconfig=self.arcs('FEAR'),
+                                        repeat=1))
+            cals.append(SequenceElement(pattern=Stare(),
+                                        detconfig=kcwib_45s,
+                                        instconfig=self.arcs('THAR'),
+                                        repeat=1))
+            cals.append(SequenceElement(pattern=Stare(),
+                                        detconfig=kcwib_6s,
+                                        instconfig=self.arcs('CONT'),
+                                        repeat=6))
+            cals.append(SequenceElement(pattern=Stare(),
+                                        detconfig=kcwib_0s_dark,
+                                        instconfig=self,
+                                        repeat=7))
+        if domeflats is True:
+            cals.append(SequenceElement(pattern=Stare(),
+                                        detconfig=kcwib_100s,
+                                        instconfig=self.domeflats(),
+                                        repeat=3))
+        return cals
+
+
     def __str__(self):
-        self.name = f'{self.slicer} {self.grating} {self.cwave*u.A:.0f}'
         return f'{self.name}'
 
 
     def __repr__(self):
-        self.name = f'{self.slicer} {self.grating} {self.cwave*u.A:.0f}'
         return f'{self.name}'
 
 

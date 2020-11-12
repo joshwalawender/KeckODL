@@ -6,12 +6,22 @@ import re
 from warnings import warn
 import yaml
 from copy import deepcopy
+from astropy import units as u
 
 
 from .detector_config import IRDetectorConfig
 from .instrument_config import InstrumentConfig
 from .sequence import SequenceElement, Sequence
 from .offset import Stare
+from .offset import OffsetFrame
+
+
+##-------------------------------------------------------------------------
+## MOSFIRE Frames
+##-------------------------------------------------------------------------
+MOSFIRE = OffsetFrame(name='MOSFIRE Detector',
+                      pixelscale=0.1798*u.arcsec/u.pixel,
+                      PA='ROTPPOSN')
 
 
 ##-------------------------------------------------------------------------

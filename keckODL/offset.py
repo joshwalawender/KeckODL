@@ -60,18 +60,6 @@ class OffsetFrame():
 ## Some actual frames with values
 ##-------------------------------------------------------------------------
 SkyFrame = OffsetFrame(name='SkyFrame')
-KCWI_SmallSlicer_Frame = OffsetFrame(name='KCWI_SmallSlicer',
-                                     pixelscale=0.35*u.arcsec/u.pixel,
-                                     PA='ROTPPOSN')
-KCWI_MediumSlicer_Frame = OffsetFrame(name='KCWI_MediumSlicer',
-                                      pixelscale=0.70*u.arcsec/u.pixel,
-                                      PA='ROTPPOSN')
-KCWI_LargeSlicer_Frame = OffsetFrame(name='KCWI_LargeSlicer',
-                                     pixelscale=1.35*u.arcsec/u.pixel,
-                                     PA='ROTPPOSN')
-MOSFIRE = OffsetFrame(name='MOSFIRE Detector',
-                      pixelscale=0.1798*u.arcsec/u.pixel,
-                      PA='ROTPPOSN')
 
 
 ##-------------------------------------------------------------------------
