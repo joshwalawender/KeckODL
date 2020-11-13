@@ -17,7 +17,8 @@ class DetectorConfigWarning(UserWarning): pass
 ## DetectorConfig
 ##-------------------------------------------------------------------------
 class DetectorConfig():
-    '''An object to hold information about a detector configuration.
+    '''An object to hold information about a detector configuration.  This is
+    an abstract class which we expect to be subclassed.
 
     Attributes
     ----------
@@ -27,9 +28,16 @@ class DetectorConfig():
     readoutmode : str
         The readout mode.  Must be one of a set of approved values depending
         on the instrument.
+    
+    Methods
+    -------
+    validate
+    to_dict
+    to_YAML
+    write
     '''
-    def __init__(self, exptime=None, readoutmode=None):
-        self.instrument = None
+    def __init__(self, instrument='GenericDetector', exptime=None, readoutmode=None):
+        self.instrument = instrument
         self.name = 'GenericDetectorConfig'
         self.exptime = exptime
         self.readoutmode = readoutmode
@@ -73,23 +81,26 @@ class DetectorConfig():
 ## IRDetectorConfig
 ##-------------------------------------------------------------------------
 class IRDetectorConfig(DetectorConfig):
-    '''An object to hold information about an IR detector configuration.
+    '''An object to hold information about an IR detector configuration.  This
+    is an abstract class which we expect to be subclassed to a particular
+    instrument/detector.
 
     Attributes
     ----------
     coadds : int
         The number of coadds (if applicable)
     '''
-    def __init__(self, exptime=None, readoutmode='CDS', coadds=1):
-        super().__init__(exptime=exptime, readoutmode=readoutmode)
+    def __init__(self, instrument='GenericIR', exptime=None, readoutmode='CDS',
+                 coadds=1):
+        super().__init__(instrument=instrument, exptime=exptime,
+                         readoutmode=readoutmode)
         self.coadds = coadds
-        self.instrument = 'GenericIR'
         self.set_name()
 
 
     def set_name(self):
         exptime = self.exptime if self.exptime is not None else -1
-        self.name = f'{exptime:.1f}s ({self.readoutmode}, {self.coadds:d} coadds)'
+        self.name = f'{self.instrument} {exptime:.1f}s ({self.readoutmode}, {self.coadds:d} coadds)'
 
 
     def to_dict(self):
@@ -102,7 +113,9 @@ class IRDetectorConfig(DetectorConfig):
 ## VisibleDetectorConfig
 ##-------------------------------------------------------------------------
 class VisibleDetectorConfig(DetectorConfig):
-    '''An object to hold information about a visible light detector configuration.
+    '''An object to hold information about a visible light detector
+    configuration.  This is an abstract class which we expect to be subclassed
+    to a particular instrument/detector.
 
     Attributes
     ----------
@@ -119,10 +132,10 @@ class VisibleDetectorConfig(DetectorConfig):
     window : str
         The window, parsed as x1:x2,y1:y2
     '''
-    def __init__(self, exptime=None, readoutmode=None, ampmode=None,
-                 dark=False, binning='1x1', window=None):
-        super().__init__(exptime=exptime, readoutmode=readoutmode)
-        self.instrument = 'GenericVis'
+    def __init__(self, instrument='GenericVis', exptime=None, readoutmode=None,
+                 ampmode=None, dark=False, binning='1x1', window=None):
+        super().__init__(instrument=instrument, exptime=exptime,
+                         readoutmode=readoutmode)
         self.ampmode = ampmode
         self.dark = dark
         self.binning = binning
@@ -134,7 +147,7 @@ class VisibleDetectorConfig(DetectorConfig):
         exptime = self.exptime if self.exptime is not None else -1
         ampmode = self.ampmode if self.ampmode is not None else 'unknown'
         dark_string = {True: ', Dark', False: ''}[self.dark]
-        self.name = f'{exptime:.1f}s ({ampmode}{dark_string})'
+        self.name = f'{self.instrument} {exptime:.1f}s ({ampmode}{dark_string})'
 
 
     def to_dict(self):
