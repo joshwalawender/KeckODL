@@ -4,6 +4,11 @@
 from astropy import units as u
 from collections import UserList
 
+try:
+    import ktl
+except ModuleNotFoundError:
+    ktl = None
+
 
 class OffsetError(Exception): pass
 
@@ -17,49 +22,56 @@ class OffsetWarning(UserWarning): pass
 ##-------------------------------------------------------------------------
 class OffsetFrame():
     '''An OffsetFrame is the coordinate frame in which the offset is done.  It
-    usually corresponds to a focal plane.  An OffsetFrame consists of a pixel
-    scale and an orientation.
-    
-    Examples: Sky, Detector, Slit, Guider
+    usually corresponds to a focal plane.  This class is abstract and is meant
+    to be subclassed.
     '''
-    def __init__(self, name='GenericFrame', pixelscale=1*u.arcsec/u.pixel, PA=0):
+    def __init__(self, name='GenericFrame'):
         self.name = name
-        self.pixelscale = pixelscale
-        self._PA = PA
-        if isinstance(self.PA, u.Quantity):
-            # If the PA is given as a constant, no need to refresh the value
-            self._refresh = False
-        elif type(self.PA) in [float, int]:
-            # If the PA is given as a constant, no need to refresh the value
-            self._refresh = False
-            # Assume degrees are the units
-            self._PA *= u.deg
-        else:
-            # Assume PA is a keyword and must be refreshed each time it is used
-            self._refresh = True
-
-
-    def PA(self):
-        '''
-        '''
-        if self._refresh is True:
-            raise NotImplementedError
-        else:
-            return self._PA
+        self.xkw = '?'
+        self.ykw = '?'
 
 
     def __str__(self):
-        return self.name
+        return f'{self.name} ({self.xkw} {self.ykw})'
 
 
     def __repr__(self):
-        return self.name
+        return f'{self.name} ({self.xkw} {self.ykw})'
 
 
-##-------------------------------------------------------------------------
-## Some actual frames with values
-##-------------------------------------------------------------------------
-SkyFrame = OffsetFrame(name='SkyFrame')
+class SkyFrame(OffsetFrame):
+    '''A SkyOffset is an offset frame which takes place in sky coordinates
+    (North-South and East-West).  It uses the RAOFF and DECOFF DCS keywords.
+    '''
+    def __init__(self, name='SkyFrame', scale=1.3751*u.arcsec/u.mm):
+        super().__init__(name=name)
+        self.scale = scale
+        if ktl is not None:
+            self.xkw = ktl.cache(keyword='RAOFF', service='DCS')
+            self.ykw = ktl.cache(keyword='DECOFF', service='DCS')
+        else:
+            self.xkw = 'RAOFF'
+            self.ykw = 'DECOFF'
+
+
+
+class InstrumentFrame(OffsetFrame):
+    '''An InstrumentFrame is an offset frame which takes place in instrument
+    coordinates as determined by the INSTXOFF, INSTXYOFF, and INSTANGL DCS
+    keywords.  This class is intended to be subclassed to make it specific
+    to each instrument focal plane.
+    '''
+    def __init__(self, name='InstrumentFrame', scale=1*u.arcsec/u.pixel,
+                 offsetangle=0*u.deg):
+        super().__init__(name=name)
+        self.scale = scale
+        self.offsetangle = offsetangle
+        if ktl is not None:
+            self.xkw = ktl.cache(keyword='INSTXOFF', service='DCS')
+            self.ykw = ktl.cache(keyword='INSTXYOFF', service='DCS')
+        else:
+            self.xkw = 'INSTXOFF'
+            self.ykw = 'INSTXYOFF'
 
 
 ##-------------------------------------------------------------------------
@@ -69,12 +81,26 @@ class TelescopeOffset():
     '''Describes a telescope offset for the purposes of including it in an
     observing sequence.
     '''
-    def __init__(self, dx=0, dy=0, dr=0, relative=False, name=''):
+    def __init__(self, dx=0, dy=0, dr=0, relative=False, frame=SkyFrame(),
+                 posname='', guide=True):
         self.dx = dx
         self.dy = dy
         self.dr = dr
+        self.frame = frame
         self.relative = relative
-        self.name = name
+        self.posname = posname
+        self.guide = guide
+
+
+    def execute(self):
+        '''This is a dummy method for now to print actions to screen.
+        
+        This does not handle the offsetangle value for InstrumentFrame yet.
+        '''
+        rel2curr = {True: 't', False: 'f'}[self.relative]
+        rel2base = {True: 'f', False: 't'}[self.relative]
+        print(f'{repr(self.frame.xkw)}.write({self.dx}, rel2curr={rel2curr}, rel2base={rel2base})')
+        print(f'{repr(self.frame.ykw)}.write({self.dy}, rel2curr={rel2curr}, rel2base={rel2base})')
 
 
     def validate(self):
@@ -111,11 +137,11 @@ class TelescopeOffset():
 
 
     def __str__(self):
-        return f'{self.dx:+6.1f}|{self.dy:+6.1f}|{self.dr:+8.1f}|{self.name:>8s}'
+        return f'{self.dx:+6.1f}|{self.dy:+6.1f}|{self.dr:+8.1f}|{self.posname:>8s}|{str(self.guide):>6s}'
 
 
     def __repr__(self):
-        return f'{self.dx:+6.1f}|{self.dy:+6.1f}|{self.dr:+8.1f}|{self.name:>8s}'
+        return f'{self.dx:+6.1f}|{self.dy:+6.1f}|{self.dr:+8.1f}|{self.posname:>8s}|{str(self.guide):>6s}'
 
 
 ##-------------------------------------------------------------------------
@@ -125,10 +151,16 @@ class OffsetPattern(UserList):
     '''Describes a telescope offset for the purposes of including it in an
     observing sequence.
     '''
-    def __init__(self, frame=None, name=''):
+    def __init__(self, name=''):
         super().__init__()
         self.name = name
-        self.frame = frame
+
+
+    def verify(self):
+        oframe = self.data[0].frame
+        for item in self.data:
+            if item.frame != oframe:
+                raise OffsetError(f'Not all offsets in the pattern have the same frame')
 
 
     def __str__(self):
@@ -136,9 +168,9 @@ class OffsetPattern(UserList):
 
 
     def __repr__(self):
-        output = [f'Frame: {self.frame}',
-                  f' dx(")| dy(")| dr(deg)|    name',
-                  f'{"-"*6:6s}|{"-"*6:6s}|{"-"*8:8s}|{"-"*8:8s}',]
+        output = [f'Frame: {self.data[0].frame}',
+                  f' dx(")| dy(")| dr(deg)|    name|guide?',
+                  f'{"-"*6:6s}|{"-"*6:6s}|{"-"*8:8s}|{"-"*8:8s}|{"-"*6:6s}',]
         for item in self.data:
             output.append(item.__str__())
         return "\n".join(output)
@@ -147,46 +179,20 @@ class OffsetPattern(UserList):
 ##-------------------------------------------------------------------------
 ## Per-Defined Patterns
 ##-------------------------------------------------------------------------
-class ABBA(OffsetPattern):
-    def __init__(self, offset=2):
-        super().__init__()
-        self.name = f'ABBA ({offset:.1f})'
-        self.frame = SkyFrame
-        self.data = [TelescopeOffset(dx=0, dy=+offset, name="A"),
-                     TelescopeOffset(dx=0, dy=-offset, name="B"),
-                     TelescopeOffset(dx=0, dy=-offset, name="B"),
-                     TelescopeOffset(dx=0, dy=+offset, name="A"),
-                     ]
-
-
 class Stare(OffsetPattern):
     def __init__(self):
         super().__init__()
         self.name = 'Stare'
-        self.frame = SkyFrame
-        self.data = [TelescopeOffset(dx=0, dy=0, name='base')]
+        self.frame = SkyFrame()
+        self.data = [TelescopeOffset(dx=0, dy=0, posname='base', frame=SkyFrame())]
 
 
 class StarSkyStar(OffsetPattern):
-    def __init__(self, dx=0, dy=0):
+    def __init__(self, dx=0, dy=0, guide=True, guideatsky=False):
         super().__init__()
         self.name = f'StarSkyStar ({dx:.0f} {dy:.0f})'
-        self.frame = SkyFrame
-        self.data = [TelescopeOffset(dx=0, dy=0, name='star'),
-                     TelescopeOffset(dx=dx, dy=dy, name='sky'),
-                     TelescopeOffset(dx=0, dy=0, name='star'),
-                     ]
-
-
-class Long2pos(OffsetPattern):
-    '''Note that the offset values here are not correct.
-    '''
-    def __init__(self):
-        super().__init__()
-        self.name = f'long2pos'
-        self.frame = MOSFIRE
-        self.data = [TelescopeOffset(dx=+45, dy=-23, name="A"),
-                     TelescopeOffset(dx=+45, dy=-9, name="B"),
-                     TelescopeOffset(dx=-45, dy=+9, name="A"),
-                     TelescopeOffset(dx=-45, dy=+23, name="B"),
+        self.frame = SkyFrame()
+        self.data = [TelescopeOffset(dx=0, dy=0, posname='star', frame=SkyFrame(), guide=guide),
+                     TelescopeOffset(dx=dx, dy=dy, posname='sky', frame=SkyFrame(), guide=guideatsky),
+                     TelescopeOffset(dx=0, dy=0, posname='star', frame=SkyFrame(), guide=guide),
                      ]

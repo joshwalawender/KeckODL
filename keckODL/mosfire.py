@@ -12,16 +12,19 @@ from astropy import units as u
 from .detector_config import IRDetectorConfig
 from .instrument_config import InstrumentConfig
 from .sequence import SequenceElement, Sequence
+from .offset import SkyFrame, InstrumentFrame, TelescopeOffset, OffsetPattern
 from .offset import Stare
-from .offset import OffsetFrame
 
 
 ##-------------------------------------------------------------------------
 ## MOSFIRE Frames
 ##-------------------------------------------------------------------------
-MOSFIRE = OffsetFrame(name='MOSFIRE Detector',
-                      pixelscale=0.1798*u.arcsec/u.pixel,
-                      PA='ROTPPOSN')
+detector = InstrumentFrame(name='MOSFIRE Detector',
+                           scale=0.1798*u.arcsec/u.pixel,
+                           offsetangle=+0.22*u.deg)
+slit = InstrumentFrame(name='MOSFIRE Slit',
+                       scale=0.1798*u.arcsec/u.pixel,
+                       offsetangle=+4.0*u.deg)
 
 
 ##-------------------------------------------------------------------------
@@ -31,9 +34,8 @@ class MOSFIREDetectorConfig(IRDetectorConfig):
     '''An object to hold information about NIRES detector configuration.
     '''
     def __init__(self, exptime=None, readoutmode='CDS', coadds=1):
-        super().__init__(exptime=exptime, readoutmode=readoutmode, coadds=coadds)
-        self.instrument = 'MOSFIRE'
-        self.set_name()
+        super().__init__(instrument='MOSFIRE', exptime=exptime,
+                         readoutmode=readoutmode, coadds=coadds)
 
 
     ##-------------------------------------------------------------------------
@@ -95,6 +97,8 @@ class MOSFIREConfig(InstrumentConfig):
         output['filter'] = self.filter
         output['mode'] = self.mode
         output['mask'] = self.mask
+        output['arclamp'] = self.arclamp
+        output['domeflatlamp'] = self.domeflatlamp
         return output
 
 
@@ -141,3 +145,30 @@ class MOSFIREConfig(InstrumentConfig):
                                         instconfig=self.arcs('Ar'),
                                         repeat=2))
         return cals
+
+
+##-------------------------------------------------------------------------
+## Offset Patterns
+##-------------------------------------------------------------------------
+class ABBA(OffsetPattern):
+    def __init__(self, offset=2, guide=True):
+        super().__init__()
+        self.name = f'ABBA ({offset:.1f})'
+        self.data = [TelescopeOffset(dx=0, dy=+offset, posname="A", guide=guide, frame=slit),
+                     TelescopeOffset(dx=0, dy=-offset, posname="B", guide=guide, frame=slit),
+                     TelescopeOffset(dx=0, dy=-offset, posname="B", guide=guide, frame=slit),
+                     TelescopeOffset(dx=0, dy=+offset, posname="A", guide=guide, frame=slit),
+                     ]
+
+
+class Long2pos(OffsetPattern):
+    '''Note that the offset values here are not correct.
+    '''
+    def __init__(self, guide=True):
+        super().__init__()
+        self.name = f'long2pos'
+        self.data = [TelescopeOffset(dx=+45, dy=-23, posname="A", guide=guide, frame=detector),
+                     TelescopeOffset(dx=+45, dy=-9,  posname="B", guide=guide, frame=detector),
+                     TelescopeOffset(dx=-45, dy=+9,  posname="A", guide=guide, frame=detector),
+                     TelescopeOffset(dx=-45, dy=+23, posname="B", guide=guide, frame=detector),
+                     ]

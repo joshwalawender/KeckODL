@@ -11,22 +11,23 @@ from astropy import units as u
 
 from .detector_config import VisibleDetectorConfig
 from .instrument_config import InstrumentConfig
-from .offset import OffsetFrame, Stare
+from .offset import SkyFrame, InstrumentFrame, TelescopeOffset, OffsetPattern
+from .offset import Stare
 from .sequence import Sequence, SequenceElement
 
 
 ##-------------------------------------------------------------------------
 ## KCWI Frames
 ##-------------------------------------------------------------------------
-KCWI_SmallSlicer_Frame = OffsetFrame(name='KCWI_SmallSlicer',
-                                     pixelscale=0.35*u.arcsec/u.pixel,
-                                     PA='ROTPPOSN')
-KCWI_MediumSlicer_Frame = OffsetFrame(name='KCWI_MediumSlicer',
-                                      pixelscale=0.70*u.arcsec/u.pixel,
-                                      PA='ROTPPOSN')
-KCWI_LargeSlicer_Frame = OffsetFrame(name='KCWI_LargeSlicer',
-                                     pixelscale=1.35*u.arcsec/u.pixel,
-                                     PA='ROTPPOSN')
+bluedetector = InstrumentFrame(name='Blue Detector',
+                               scale=0.1798*u.arcsec/u.pixel,
+                               offsetangle=+0.22*u.deg)
+SmallSlicer_Frame = InstrumentFrame(name='SmallSlicer',
+                                    scale=0.35*u.arcsec/u.pixel)
+MediumSlicer_Frame = InstrumentFrame(name='MediumSlicer',
+                                     scale=0.70*u.arcsec/u.pixel)
+LargeSlicer_Frame = InstrumentFrame(name='LargeSlicer',
+                                    scale=1.35*u.arcsec/u.pixel)
 
 
 ##-------------------------------------------------------------------------
@@ -37,13 +38,11 @@ class KCWIblueDetectorConfig(VisibleDetectorConfig):
     '''
     def __init__(self, exptime=None, readoutmode=None, ampmode=9,
                  dark=False, binning='1x1', window=None, gain=10, ccdmode=1):
-        super().__init__(exptime=exptime, readoutmode=readoutmode,
-                         ampmode=ampmode, dark=dark, binning=binning,
-                         window=window)
-        self.instrument = 'KCWIblue'
+        super().__init__(instrument='KCWIblue', exptime=exptime,
+                         readoutmode=readoutmode, ampmode=ampmode, dark=dark,
+                         binning=binning, window=window)
         self.gain = gain
         self.ccdmode = ccdmode
-        self.set_name()
 
 
     ##-------------------------------------------------------------------------
@@ -52,7 +51,14 @@ class KCWIblueDetectorConfig(VisibleDetectorConfig):
         '''Check values and verify that they meet assumptions.
         
         Check:
-        
+        - exptime is in range 1-3600
+        - readoutmode is in range ??
+        - ampmode is in range ??
+        - dark is bookean
+        - binning is one of 1x1, 2x2
+        - gain is in range ??
+        - ccdmode is one of ??
+
         Warn:
         - Window is not used
         '''
@@ -66,7 +72,7 @@ class KCWIblueConfig(InstrumentConfig):
     '''An object to hold information about KCWI Blue configuration.
     '''
     def __init__(self, slicer='medium', grating='BH3', filter='KBlue',
-                 cwave=4800, pwave=None, nandsmask=False, bluefocus=None,
+                 cwave=4800, pwave=None, nandsmask=False, focus=None,
                  calmirror='Sky', calobj='Dark', arclamp=None,
                  domeflatlamp=None, polarizer='Sky'):
         super().__init__()
@@ -75,7 +81,7 @@ class KCWIblueConfig(InstrumentConfig):
         self.grating = grating
         self.filter = filter
         self.nandsmask = nandsmask
-        self.bluefocus = bluefocus
+        self.focus = focus
         self.calmirror = calmirror
         self.calobj = calobj
         self.arclamp = arclamp
@@ -105,10 +111,10 @@ class KCWIblueConfig(InstrumentConfig):
     def to_dict(self):
         output = super().to_dict()
         output['slicer'] = self.slicer
-        output['bluegrating'] = self.bluegrating
-        output['bluefilter'] = self.bluefilter
+        output['grating'] = self.grating
+        output['filter'] = self.filter
         output['nandsmask'] = self.nandsmask
-        output['bluefocus'] = self.bluefocus
+        output['focus'] = self.focus
         output['calmirror'] = self.calmirror
         output['calobj'] = self.calobj
         output['polarizer'] = self.polarizer
