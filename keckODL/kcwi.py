@@ -20,8 +20,7 @@ from .sequence import Sequence, SequenceElement
 ## KCWI Frames
 ##-------------------------------------------------------------------------
 bluedetector = InstrumentFrame(name='Blue Detector',
-                               scale=0.1798*u.arcsec/u.pixel,
-                               offsetangle=+0.22*u.deg)
+                               scale=0.1798*u.arcsec/u.pixel)
 SmallSlicer_Frame = InstrumentFrame(name='SmallSlicer',
                                     scale=0.35*u.arcsec/u.pixel)
 MediumSlicer_Frame = InstrumentFrame(name='MediumSlicer',
@@ -54,7 +53,7 @@ class KCWIblueDetectorConfig(VisibleDetectorConfig):
         - exptime is in range 1-3600
         - readoutmode is in range ??
         - ampmode is in range ??
-        - dark is bookean
+        - dark is boolean
         - binning is one of 1x1, 2x2
         - gain is in range ??
         - ccdmode is one of ??

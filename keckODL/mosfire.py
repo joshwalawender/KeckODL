@@ -20,11 +20,10 @@ from .offset import Stare
 ## MOSFIRE Frames
 ##-------------------------------------------------------------------------
 detector = InstrumentFrame(name='MOSFIRE Detector',
-                           scale=0.1798*u.arcsec/u.pixel,
-                           offsetangle=+0.22*u.deg)
+                           scale=0.1798*u.arcsec/u.pixel)
 slit = InstrumentFrame(name='MOSFIRE Slit',
                        scale=0.1798*u.arcsec/u.pixel,
-                       offsetangle=+4.0*u.deg)
+                       offsetangle=0*u.deg) # Note this offset angle is wrong
 
 
 ##-------------------------------------------------------------------------
@@ -148,27 +147,20 @@ class MOSFIREConfig(InstrumentConfig):
 
 
 ##-------------------------------------------------------------------------
-## Offset Patterns
+## Pre-Defined Patterns
 ##-------------------------------------------------------------------------
-class ABBA(OffsetPattern):
-    def __init__(self, offset=2, guide=True):
-        super().__init__()
-        self.name = f'ABBA ({offset:.1f})'
-        self.data = [TelescopeOffset(dx=0, dy=+offset, posname="A", guide=guide, frame=slit),
-                     TelescopeOffset(dx=0, dy=-offset, posname="B", guide=guide, frame=slit),
-                     TelescopeOffset(dx=0, dy=-offset, posname="B", guide=guide, frame=slit),
-                     TelescopeOffset(dx=0, dy=+offset, posname="A", guide=guide, frame=slit),
-                     ]
+def ABBA(offset=1.25, guide=True):
+    o1 = TelescopeOffset(dx=0, dy=+offset, posname="A", guide=guide, frame=slit)
+    o2 = TelescopeOffset(dx=0, dy=-offset, posname="B", guide=guide, frame=slit)
+    o3 = TelescopeOffset(dx=0, dy=-offset, posname="B", guide=guide, frame=slit)
+    o4 = TelescopeOffset(dx=0, dy=+offset, posname="A", guide=guide, frame=slit)
+    return OffsetPattern([o1, o2, o3, o4], name=f'ABBA ({offset:.1f})')
 
 
-class Long2pos(OffsetPattern):
-    '''Note that the offset values here are not correct.
-    '''
-    def __init__(self, guide=True):
-        super().__init__()
-        self.name = f'long2pos'
-        self.data = [TelescopeOffset(dx=+45, dy=-23, posname="A", guide=guide, frame=detector),
-                     TelescopeOffset(dx=+45, dy=-9,  posname="B", guide=guide, frame=detector),
-                     TelescopeOffset(dx=-45, dy=+9,  posname="A", guide=guide, frame=detector),
-                     TelescopeOffset(dx=-45, dy=+23, posname="B", guide=guide, frame=detector),
-                     ]
+def long2pos(offset=1.25, guide=True):
+    o1 = TelescopeOffset(dx=+45, dy=-23, posname="A", guide=guide, frame=detector)
+    o2 = TelescopeOffset(dx=+45, dy=-9,  posname="B", guide=guide, frame=detector)
+    o3 = TelescopeOffset(dx=-45, dy=+9,  posname="A", guide=guide, frame=detector)
+    o4 = TelescopeOffset(dx=-45, dy=+23, posname="B", guide=guide, frame=detector)
+    return OffsetPattern([o1, o2, o3, o4], name=f'long2pos')
+
