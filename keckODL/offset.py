@@ -71,7 +71,7 @@ class SkyFrame(OffsetFrame):
 
 class InstrumentFrame(OffsetFrame):
     '''An InstrumentFrame is an offset frame which takes place in instrument
-    coordinates as determined by the INSTXOFF, INSTXYOFF, and INSTANGL DCS
+    coordinates as determined by the INSTXOFF, INSTYOFF, and INSTANGL DCS
     keywords.  This class is intended to be subclassed to make it specific
     to each instrument focal plane.
 
@@ -97,7 +97,7 @@ class InstrumentFrame(OffsetFrame):
             self.ykw = ktl.cache(keyword='INSTYOFF', service='DCS')
         else:
             self.xkw = 'INSTXOFF'
-            self.ykw = 'INSTXYOFF'
+            self.ykw = 'INSTYOFF'
         self.validate()
 
 
