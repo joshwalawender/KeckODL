@@ -14,6 +14,8 @@ from .instrument_config import InstrumentConfig
 from .sequence import SequenceElement, Sequence
 from .offset import SkyFrame, InstrumentFrame, TelescopeOffset, OffsetPattern
 from .offset import Stare
+from .block import ObservingBlock, ObservingBlockList
+from .target import Target, DomeFlats
 
 
 ##-------------------------------------------------------------------------
@@ -120,6 +122,37 @@ class MOSFIREConfig(InstrumentConfig):
 
 
     def cals(self):
+        '''
+        '''
+        mosfire_1s = MOSFIREDetectorConfig(exptime=1, readoutmode='CDS')
+        mosfire_11s = MOSFIREDetectorConfig(exptime=11, readoutmode='CDS')
+
+        cals = ObservingBlockList()
+        cals.append(ObservingBlock(target=DomeFlats(),
+                                   pattern=Stare(),
+                                   detconfig=mosfire_11s,
+                                   instconfig=self.domeflats(),
+                                   repeat=7))
+        if self.filter == 'K':
+            cals.append(ObservingBlock(target=DomeFlats(),
+                                       pattern=Stare(),
+                                       detconfig=mosfire_11s,
+                                       instconfig=self.domeflats(off=True),
+                                       repeat=7))
+            cals.append(ObservingBlock(target=None,
+                                       pattern=Stare(),
+                                       detconfig=mosfire_1s,
+                                       instconfig=self.arcs('Ne'),
+                                       repeat=2))
+            cals.append(ObservingBlock(target=None,
+                                       pattern=Stare(),
+                                       detconfig=mosfire_1s,
+                                       instconfig=self.arcs('Ar'),
+                                       repeat=2))
+        return cals
+
+
+    def seq_cals(self):
         '''
         '''
         mosfire_1s = MOSFIREDetectorConfig(exptime=1, readoutmode='CDS')

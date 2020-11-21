@@ -23,6 +23,7 @@ object_types = ['science',
                 'sky',
                 'flux standard',
                 'telluric standard',
+                'cal',
                 'custom']
 valid_PAs = {'pa': [0, 360],
              'stationary': [0, 360],
@@ -179,6 +180,9 @@ class Target():
                 dra=0, ddec=0,
                 comment=None
                 ):
+        self.RA = RA
+        self.Dec = Dec
+        self.equinox = equinox
         # Optional
         self.rotmode = rotmode
         self.PA = PA
@@ -197,11 +201,12 @@ class Target():
         self.ddec = ddec
         self.comment = comment
 
+        self.name = name
         if name is not None and RA is None and Dec is None:
-            # Try to get coordinates from the name
-            self.from_name(name)
+            if name.lower() not in ['none', 'domeflat', 'domeflats']:
+                # Try to get coordinates from the name
+                self.from_name(name)
         else:
-            self.name = name
             if type(RA) == str and type(Dec) == str:
                 sc = c.SkyCoord(f'{RA} {Dec}', unit=(u.hourangle, u.deg),
                                 frame=self.frame)
@@ -239,11 +244,11 @@ class Target():
         '''
         if self.name is None:
             raise TargetError('name is required')
-        if self.RA is None:
+        if self.RA is None and self.name.lower() not in ['none', 'domeflat', 'domeflats']:
             raise TargetError('RA is required')
-        if self.Dec is None:
+        if self.Dec is None and self.name.lower() not in ['none', 'domeflat', 'domeflats']:
             raise TargetError('Dec is required')
-        if self.equinox is None:
+        if self.equinox is None and self.name.lower() not in ['none', 'domeflat', 'domeflats']:
             raise TargetError('equinox is required')
 
         if self.rotmode is None:
@@ -508,8 +513,13 @@ class TargetList(UserList):
 
 
     def __str__(self):
-        return self.to_starlist()
+        return self.name
 
 
     def __repr__(self):
         return self.to_starlist()
+
+
+def DomeFlats(PA=0):
+    return Target(name='DomeFlats', rotmode='Stationary', PA=PA,
+                  objecttype='cal', acquisition='blind')
