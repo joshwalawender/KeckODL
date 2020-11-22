@@ -36,7 +36,8 @@ class DetectorConfig():
     to_YAML
     write
     '''
-    def __init__(self, instrument='GenericDetector', exptime=None, readoutmode=None):
+    def __init__(self, instrument='GenericDetector', exptime=None,
+                 readoutmode=None):
         self.instrument = instrument
         self.name = 'GenericDetectorConfig'
         self.exptime = exptime
@@ -100,7 +101,8 @@ class IRDetectorConfig(DetectorConfig):
 
     def set_name(self):
         exptime = self.exptime if self.exptime is not None else -1
-        self.name = f'{self.instrument} {exptime:.1f}s ({self.readoutmode}, {self.coadds:d} coadds)'
+        self.name = (f'{self.instrument} {exptime:.1f}s ({self.readoutmode}, '
+                     f'{self.coadds:d} coadds)')
 
 
     def to_dict(self):

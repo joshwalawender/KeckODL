@@ -22,7 +22,8 @@ class ObservingBlock():
     
     Can be thought of as one line in a table of actions.
     '''
-    def __init__(self, target=None, pattern=None, detconfig=None, instconfig=None, repeat=1):
+    def __init__(self, target=None, pattern=None, detconfig=None,
+                 instconfig=None, repeat=1):
         self.target = target
         self.pattern = pattern
         self.detconfig = detconfig
@@ -37,9 +38,10 @@ class ObservingBlock():
     def estimate_time(self):
         '''Estimate the wall clock time to complete the sequence.
         '''
-        return {'shutter open time': len(self.pattern) * self.detconfig.exptime * self.repeat,
-                  'wall clock time': len(self.pattern) * self.detconfig.exptime * self.repeat,
-                }
+        return {'shutter open time': len(self.pattern) * self.detconfig.exptime\
+                                     * self.repeat,
+                  'wall clock time': len(self.pattern) * self.detconfig.exptime\
+                                     * self.repeat}
 
 
     def cals(self):
@@ -47,11 +49,15 @@ class ObservingBlock():
 
 
     def __str__(self):
-        return f'{str(self.target):15s}|{str(self.pattern):19s}|{self.repeat:6d} |{str(self.detconfig):35s}|{str(self.instconfig):45s}'
+        return (f'{str(self.target):15s}|{str(self.pattern):19s}|'
+                f'{self.repeat:6d} |{str(self.detconfig):35s}|'
+                f'{str(self.instconfig):45s}')
 
 
     def __repr__(self):
-        return f'{str(self.target):15s}|{str(self.pattern):19s}|{self.repeat:6d} |{str(self.detconfig):35s}|{str(self.instconfig):45s}'
+        return (f'{str(self.target):15s}|{str(self.pattern):19s}|'
+                f'{self.repeat:6d} |{str(self.detconfig):35s}|'
+                f'{str(self.instconfig):45s}')
 
 
 ##-------------------------------------------------------------------------
@@ -63,8 +69,8 @@ class ObservingBlockList(UserList):
     def validate(self):
         for i,s in enumerate(self.data):
             if type(s) != ObservingBlock:
-                raise SequenceError(f'An ObservingBlockList must be made up of ObservingBlocks. '
-                                    f'Element {i} is type {type(s)}.')
+                raise SequenceError(f'An ObservingBlockList must be made up of '
+                                    f'ObservingBlocks. Element {i} is {type(s)}.')
             s.validate()
 
 
@@ -89,16 +95,20 @@ class ObservingBlockList(UserList):
 
 
     def __str__(self):
-        output = [f'{"Target":15s}|{"Pattern":19s}|{"repeat":7s}|{"DetectorConfig":35s}|{"InstrumentConfig":45s}',
-                  f'{"-"*15:15s}|{"-"*19:19s}|{"-"*7:7s}|{"-"*35:35s}|{"-"*45:45s}',]
+        output = [(f'{"Target":15s}|{"Pattern":19s}|{"repeat":7s}|'
+                   f'{"DetectorConfig":35s}|{"InstrumentConfig":45s}'),
+                  (f'{"-"*15:15s}|{"-"*19:19s}|{"-"*7:7s}|{"-"*35:35s}|'
+                   f'{"-"*45:45s}')]
         for item in self.data:
             output.append(item.__str__())
         return "\n".join(output)
 
 
     def __repr__(self):
-        output = [f'{"Target":15s}|{"Pattern":19s}|{"repeat":7s}|{"DetectorConfig":35s}|{"InstrumentConfig":45s}',
-                  f'{"-"*15:15s}|{"-"*19:19s}|{"-"*7:7s}|{"-"*35:35s}|{"-"*45:45s}',]
+        output = [(f'{"Target":15s}|{"Pattern":19s}|{"repeat":7s}|'
+                   f'{"DetectorConfig":35s}|{"InstrumentConfig":45s}'),
+                  (f'{"-"*15:15s}|{"-"*19:19s}|{"-"*7:7s}|{"-"*35:35s}|'
+                   f'{"-"*45:45s}')]
         for item in self.data:
             output.append(item.__str__())
         return "\n".join(output)

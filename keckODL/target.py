@@ -29,6 +29,8 @@ valid_PAs = {'pa': [0, 360],
              'stationary': [0, 360],
              'vertical': [0, 360],
             }
+cal_positions = ['none', 'domeflat', 'domeflats']
+telescope_wraps = ['n', 's', 'north', 'south', 'shortest']
 
 
 class TargetError(Exception): pass
@@ -242,13 +244,14 @@ class Target():
         - rotator mode is vertical and PA != 0
         - acquisition not given
         '''
+
         if self.name is None:
             raise TargetError('name is required')
-        if self.RA is None and self.name.lower() not in ['none', 'domeflat', 'domeflats']:
+        if self.RA is None and self.name.lower() not in cal_positions:
             raise TargetError('RA is required')
-        if self.Dec is None and self.name.lower() not in ['none', 'domeflat', 'domeflats']:
+        if self.Dec is None and self.name.lower() not in cal_positions:
             raise TargetError('Dec is required')
-        if self.equinox is None and self.name.lower() not in ['none', 'domeflat', 'domeflats']:
+        if self.equinox is None and self.name.lower() not in cal_positions:
             raise TargetError('equinox is required')
 
         if self.rotmode is None:
@@ -280,7 +283,7 @@ class Target():
             raise TargetError(f'Object type "{self.objecttype}" is not valid')
 
         if self.wrap is not None:
-            if self.wrap.lower() not in ['n', 's', 'north', 'south', 'shortest']:
+            if self.wrap.lower() not in telescope_wraps:
                 raise TargetError(f'Wrap "{self.wrap}" is not valid')
 
 

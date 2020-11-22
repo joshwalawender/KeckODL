@@ -164,15 +164,19 @@ class TelescopeOffset():
 
 
     def __str__(self):
-        dx = self.dx if isinstance(self.dx, u.Quantity) is False else self.dx.to(u.arcsec).value
-        dy = self.dy if isinstance(self.dy, u.Quantity) is False else self.dy.to(u.arcsec).value
-        return f'{dx:+6.1f}|{dy:+6.1f}|{self.dr:+8.1f}|{self.posname:>8s}|{str(self.guide):>6s}'
+        dx = self.dx if isinstance(self.dx, u.Quantity) is False\
+             else self.dx.to(u.arcsec).value
+        dy = self.dy if isinstance(self.dy, u.Quantity) is False\
+             else self.dy.to(u.arcsec).value
+        return (f'{dx:+6.1f}|{dy:+6.1f}|{self.dr:+8.1f}|{self.posname:>8s}|'
+                f'{str(self.guide):>6s}')
 
 
     def __repr__(self):
         dx = self.dx if isinstance(self.dx, u.Quantity) is False else self.dx.to(u.arcsec).value
         dy = self.dy if isinstance(self.dy, u.Quantity) is False else self.dy.to(u.arcsec).value
-        return f'{dx:+6.1f}|{dy:+6.1f}|{self.dr:+8.1f}|{self.posname:>8s}|{str(self.guide):>6s}'
+        return (f'{dx:+6.1f}|{dy:+6.1f}|{self.dr:+8.1f}|{self.posname:>8s}|'
+                f'{str(self.guide):>6s}')
 
 
 ##-------------------------------------------------------------------------
@@ -191,7 +195,7 @@ class OffsetPattern(UserList):
         oframe = self.data[0].frame
         for item in self.data:
             if item.frame != oframe:
-                raise OffsetError(f'Not all offsets in the pattern have the same frame')
+                raise OffsetError(f'All offsets must have the same frame')
 
 
     def __str__(self):
@@ -230,8 +234,11 @@ def StarSkyStar(dx=0, dy=0):
     dx = dx.to(u.arcsec)
     dy = dy.to(u.arcsec)
 
-    o1 = TelescopeOffset(dx=0, dy=0, posname='star', frame=SkyFrame(), guide=True)
-    o2 = TelescopeOffset(dx=dx, dy=dy, posname='sky', frame=SkyFrame(), guide=False)
-    o3 = TelescopeOffset(dx=0, dy=0, posname='star', frame=SkyFrame(), guide=True)
-    return OffsetPattern([o1, o2, o3], name=f'StarSkyStar ({dx.value:.0f} {dy.value:.0f})')
-
+    o1 = TelescopeOffset(dx=0, dy=0, posname='star',
+                         frame=SkyFrame(), guide=True)
+    o2 = TelescopeOffset(dx=dx, dy=dy, posname='sky',
+                         frame=SkyFrame(), guide=False)
+    o3 = TelescopeOffset(dx=0, dy=0, posname='star',
+                         frame=SkyFrame(), guide=True)
+    return OffsetPattern([o1, o2, o3],
+                         name=f'StarSkyStar ({dx.value:.0f} {dy.value:.0f})')
