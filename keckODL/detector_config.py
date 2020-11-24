@@ -124,13 +124,13 @@ class VisibleDetectorConfig(DetectorConfig):
     ampmode : str
         The amplifier mode.  Must be one of a set of approved values depending
         on the instrument.
-    
+
     dark : bool
         If True, will not open shutter during exposure.
-    
+
     binning : str
         The binning, parsed as (nrows)x(ncolumns)
-    
+
     window : str
         The window, parsed as x1:x2,y1:y2
     '''
@@ -160,4 +160,29 @@ class VisibleDetectorConfig(DetectorConfig):
         output['window'] = self.window
         return output
 
+
+    def erase_time(self):
+        return 0
+
+
+    def readout_time(self):
+        return 0
+
+
+    def other_overhead(self):
+        return 0
+
+
+    def estimate_clock_time(self):
+        total_time = self.erase_time()\
+                   + self.exptime\
+                   + self.readout_time()\
+                   + self.other_overhead()
+        return total_time
+
+
+    def match_time(self, target):
+        exptime = target - self.other_overhead() - self.readout_time()\
+                - self.erase_time()
+        self.exptime = exptime
 

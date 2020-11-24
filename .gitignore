@@ -5,3 +5,6 @@
 /mosfire_180s.txt
 /KCWI_medslicer_4800.txt
 /mypattern.txt
+offset_*.txt
+KCWIconfig_*.txt
+detector_*.txt

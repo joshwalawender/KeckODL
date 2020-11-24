@@ -66,6 +66,34 @@ class KCWIblueDetectorConfig(VisibleDetectorConfig):
         pass
 
 
+    def erase_time(self):
+        return 0
+
+
+    def readout_time(self):
+        '''
+        Single amp slow read, 1x1 [2x2] 337 [106] s
+        Dual amp slow read, 1x1 [2x2]   170 [53] s
+        Quad amp slow read, 1x1 [2x2]   85 [27] s  DO NOT USE!
+        Single amp fast read, 1x1 [2x2] 75 [25] s
+        Dual amp fast read,1x1 [2x2]    38 [13] s
+        Quad amp fast read, 1x1 [2x2]   19 [7] s   NOT RECOMMENDED
+        '''
+        rspeed = {1: 'slow'}[self.readoutmode]
+        namps_str = {9: 'single'}[self.ampmode]
+        read_times = {'slow':{'single': {'1x1': 337, '2x2': 106},
+                              'dual': {'1x1': 170, '2x2': 53},
+                              'quad': {'1x1': 85, '2x2': 27} },
+                      'fast':{'single': {'1x1': 75, '2x2': 25},
+                              'dual': {'1x1': 38, '2x2': 13},
+                              'quad': {'1x1': 19, '2x2': 7} } }
+        return read_times[rspeed][namps_str][self.binning]
+
+
+    def other_overhead(self):
+        return 0
+
+
 ##-------------------------------------------------------------------------
 ## KCWIredDetectorConfig
 ##-------------------------------------------------------------------------

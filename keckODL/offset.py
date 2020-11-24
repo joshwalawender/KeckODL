@@ -217,9 +217,9 @@ class OffsetPattern(UserList):
 
 
     def validate(self):
-        oframe = self.data[0].frame
+        oframe = type(self.data[0].frame)
         for item in self.data:
-            if item.frame != oframe:
+            if isinstance(item.frame, oframe) is False:
                 raise OffsetError(f'All offsets must have the same frame')
 
 
