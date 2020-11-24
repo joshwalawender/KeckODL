@@ -189,7 +189,9 @@ class TelescopeOffset():
              else self.dx.to(u.arcsec).value
         dy = self.dy if isinstance(self.dy, u.Quantity) is False\
              else self.dy.to(u.arcsec).value
-        return (f'{dx:+6.1f}|{dy:+6.1f}|{self.dr:+8.1f}|{self.posname:>8s}|'
+        dr = self.dr if isinstance(self.dr, u.Quantity) is False\
+             else self.dr.to(u.degree).value
+        return (f'{dx:+6.1f}|{dy:+6.1f}|{dr:+8.1f}|{self.posname:>8s}|'
                 f'{str(self.guide):>6s}')
 
 
