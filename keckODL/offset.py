@@ -1,9 +1,11 @@
 #!python3
 
 ## Import General Tools
+from pathlib import Path
 from astropy import units as u
 from collections import UserList
 from warnings import warn
+import yaml
 
 try:
     import ktl
@@ -122,7 +124,7 @@ class TelescopeOffset():
         self.relative = relative
         self.posname = posname
         self.guide = guide
-        self.convert_to_arcsec()
+        self.standardize_units()
         self.validate()
 
 
@@ -131,7 +133,7 @@ class TelescopeOffset():
         
         This does not handle the offsetangle value for InstrumentFrame yet.
         '''
-        self.convert_to_arcsec()
+        self.standardize_units()
         rel2what = {True: 'rel2curr=t', False: 'rel2base=t'}[self.relative]
         print(f'{repr(self.frame.xkw)}.write({self.dx.value}, {rel2what})')
         print(f'{repr(self.frame.ykw)}.write({self.dy.value}, {rel2what})')
@@ -148,7 +150,7 @@ class TelescopeOffset():
 
 
 
-    def convert_to_arcsec(self):
+    def standardize_units(self):
         if type(self.dx) in [float, int]:
             if abs(self.dx) > 1e-6:
                 warn('No offset unit given for dx, assuming arcseconds',
@@ -159,8 +161,27 @@ class TelescopeOffset():
                 warn('No offset unit given for dy, assuming arcseconds',
                               category=OffsetWarning)
             self.dy *= u.arcsec
+        if type(self.dr) in [float, int]:
+            if abs(self.dr) > 1e-1:
+                warn('No offset unit given for dr, assuming degrees',
+                              category=OffsetWarning)
+            self.dr *= u.degree
         self.dx = self.dx.to(u.arcsec)
         self.dy = self.dy.to(u.arcsec)
+        self.dr = self.dr.to(u.degree)
+
+
+    def to_dict(self):
+        self.standardize_units()
+        self.validate()
+        return {'dx': float(self.dx.value),
+                'dy': float(self.dy.value),
+                'dr': float(self.dr.value),
+                'frame': str(self.frame.name),
+                'relative': self.relative,
+                'posname': self.posname,
+                'guide': self.guide,
+                }
 
 
     def __str__(self):
@@ -173,8 +194,10 @@ class TelescopeOffset():
 
 
     def __repr__(self):
-        dx = self.dx if isinstance(self.dx, u.Quantity) is False else self.dx.to(u.arcsec).value
-        dy = self.dy if isinstance(self.dy, u.Quantity) is False else self.dy.to(u.arcsec).value
+        dx = self.dx if isinstance(self.dx, u.Quantity) is False\
+             else self.dx.to(u.arcsec).value
+        dy = self.dy if isinstance(self.dy, u.Quantity) is False\
+             else self.dy.to(u.arcsec).value
         return (f'{dx:+6.1f}|{dy:+6.1f}|{self.dr:+8.1f}|{self.posname:>8s}|'
                 f'{str(self.guide):>6s}')
 
@@ -191,11 +214,25 @@ class OffsetPattern(UserList):
         self.name = name
 
 
-    def verify(self):
+    def validate(self):
         oframe = self.data[0].frame
         for item in self.data:
             if item.frame != oframe:
                 raise OffsetError(f'All offsets must have the same frame')
+
+
+    def to_YAML(self):
+        return yaml.dump([item.to_dict() for item in self.data])
+
+
+    def write(self, file):
+        '''Write the offset pattern to a YAML formatted file.
+        '''
+        self.validate()
+        p = Path(file).expanduser().absolute()
+        if p.exists(): p.unlink()
+        with open(p, 'w') as FO:
+            FO.write(self.to_YAML())
 
 
     def __str__(self):
