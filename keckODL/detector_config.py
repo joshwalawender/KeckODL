@@ -29,6 +29,9 @@ class DetectorConfig():
         The readout mode.  Must be one of a set of approved values depending
         on the instrument.
     
+    nexp : int
+        The number of exposures.
+    
     Methods
     -------
     validate
@@ -37,10 +40,11 @@ class DetectorConfig():
     write
     '''
     def __init__(self, instrument='GenericDetector', exptime=None,
-                 readoutmode=None):
+                 nexp=1, readoutmode=None):
         self.instrument = instrument
         self.name = 'GenericDetectorConfig'
         self.exptime = exptime
+        self.nexp = nexp
         self.readoutmode = readoutmode
 
 
@@ -52,6 +56,7 @@ class DetectorConfig():
         return {'name': self.name,
                 'instrument': self.instrument,
                 'exptime': self.exptime,
+                'nexp': self.nexp,
                 'readoutmode': self.readoutmode}
 
 
@@ -68,6 +73,10 @@ class DetectorConfig():
         if p.exists(): p.unlink()
         with open(p, 'w') as FO:
             FO.write(yaml.dump(self.to_dict()))
+
+
+    def estimate_clock_time(self):
+        return self.exptime
 
 
     def __str__(self):
@@ -91,9 +100,9 @@ class IRDetectorConfig(DetectorConfig):
     coadds : int
         The number of coadds (if applicable)
     '''
-    def __init__(self, instrument='GenericIR', exptime=None, readoutmode='CDS',
-                 coadds=1):
-        super().__init__(instrument=instrument, exptime=exptime,
+    def __init__(self, instrument='GenericIR', exptime=None, nexp=1,
+                 readoutmode='CDS', coadds=1):
+        super().__init__(instrument=instrument, exptime=exptime, nexp=nexp,
                          readoutmode=readoutmode)
         self.coadds = coadds
         self.set_name()
@@ -101,8 +110,8 @@ class IRDetectorConfig(DetectorConfig):
 
     def set_name(self):
         exptime = self.exptime if self.exptime is not None else -1
-        self.name = (f'{self.instrument} {exptime:.1f}s ({self.readoutmode}, '
-                     f'{self.coadds:d} coadds)')
+        self.name = (f'{self.instrument} {exptime:.0f}s ({self.readoutmode}, '
+                     f'{self.coadds:d} coadds) x{self.nexp}')
 
 
     def to_dict(self):
@@ -134,9 +143,10 @@ class VisibleDetectorConfig(DetectorConfig):
     window : str
         The window, parsed as x1:x2,y1:y2
     '''
-    def __init__(self, instrument='GenericVis', exptime=None, readoutmode=None,
-                 ampmode=None, dark=False, binning='1x1', window=None):
-        super().__init__(instrument=instrument, exptime=exptime,
+    def __init__(self, instrument='GenericVis', exptime=None, nexp=1,
+                 readoutmode=None, ampmode=None, dark=False, binning='1x1',
+                 window=None):
+        super().__init__(instrument=instrument, exptime=exptime, nexp=nexp,
                          readoutmode=readoutmode)
         self.ampmode = ampmode
         self.dark = dark
@@ -148,8 +158,8 @@ class VisibleDetectorConfig(DetectorConfig):
     def set_name(self):
         exptime = self.exptime if self.exptime is not None else -1
         ampmode = self.ampmode if self.ampmode is not None else 'unknown'
-        dark_string = {True: ', Dark', False: ''}[self.dark]
-        self.name = f'{self.instrument} {exptime:.1f}s ({ampmode}{dark_string})'
+        dark_str = {True: ' (Dark)', False: ''}[self.dark]
+        self.name = f'{self.instrument} {exptime:.0f}s{dark_str} x{self.nexp}'
 
 
     def to_dict(self):
@@ -178,11 +188,12 @@ class VisibleDetectorConfig(DetectorConfig):
                    + self.exptime\
                    + self.readout_time()\
                    + self.other_overhead()
-        return total_time
+        return total_time*self.nexp
 
 
     def match_time(self, target):
-        exptime = target - self.other_overhead() - self.readout_time()\
-                - self.erase_time()
-        self.exptime = exptime
-
+        overhead_per_exp = self.other_overhead()\
+                         + self.readout_time()\
+                         + self.erase_time()
+        self.exptime = target/self.nexp - overhead_per_exp
+        self.set_name()
