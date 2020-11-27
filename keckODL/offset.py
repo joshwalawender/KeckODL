@@ -211,9 +211,11 @@ class OffsetPattern(UserList):
     '''Describes a telescope offset for the purposes of including it in an
     observing sequence.
     '''
-    def __init__(self, liste, name=''):
+    def __init__(self, liste, name='', repeat=1):
         super().__init__(liste)
-        self.name = name
+        self.name = f'{name} x{repeat}'
+        self.repeat = repeat
+        self.validate()
 
 
     def validate(self):
@@ -224,7 +226,11 @@ class OffsetPattern(UserList):
 
 
     def to_YAML(self):
-        return yaml.dump([item.to_dict() for item in self.data])
+        offsets = [item.to_dict() for item in self.data]
+        outputdict = {'name': self.name,
+                      'repeat': self.repeat,
+                      'offsets': offsets}
+        return yaml.dump(outputdict)
 
 
     def write(self, file):
@@ -243,6 +249,7 @@ class OffsetPattern(UserList):
 
     def __repr__(self):
         output = [f'Frame: {self.data[0].frame}',
+                  f'Repeats: {self.repeat}',
                   f' dx(")| dy(")| dr(deg)|    name|guide?',
                   f'{"-"*6:6s}|{"-"*6:6s}|{"-"*8:8s}|{"-"*8:8s}|{"-"*6:6s}',]
         for item in self.data:
@@ -253,13 +260,12 @@ class OffsetPattern(UserList):
 ##-------------------------------------------------------------------------
 ## Pre-Defined Patterns
 ##-------------------------------------------------------------------------
-def Stare():
+def Stare(repeat=1):
     offset1 = TelescopeOffset(dx=0, dy=0, posname='base', frame=SkyFrame())
-    return OffsetPattern([offset1], name='Stare')
+    return OffsetPattern([offset1], name='Stare', repeat=repeat)
 
 
-def StarSkyStar(dx=0, dy=0):
-
+def StarSkyStar(dx=0, dy=0, repeat=1):
     if type(dx) in [float, int]:
         if abs(dx) > 1e-6:
             warn('No offset unit given for dx, assuming arcseconds',
@@ -279,5 +285,5 @@ def StarSkyStar(dx=0, dy=0):
                          frame=SkyFrame(), guide=False)
     o3 = TelescopeOffset(dx=0, dy=0, posname='star',
                          frame=SkyFrame(), guide=True)
-    return OffsetPattern([o1, o2, o3],
+    return OffsetPattern([o1, o2, o3], repeat=repeat,
                          name=f'StarSkyStar ({dx.value:.0f} {dy.value:.0f})')

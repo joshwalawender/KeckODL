@@ -23,12 +23,11 @@ class ObservingBlock():
     Can be thought of as one line in a table of actions.
     '''
     def __init__(self, target=None, pattern=None, detconfig=None,
-                 instconfig=None, repeat=1):
+                 instconfig=None):
         self.target = target
         self.pattern = pattern
         self.detconfig = detconfig
         self.instconfig = instconfig
-        self.repeat = repeat
 
 
     def validate(self):
@@ -48,9 +47,9 @@ class ObservingBlock():
             exposure_time = self.detconfig.exptime
 
         return {'shutter open time': exposure_time\
-                                     * self.repeat * len(self.pattern),
+                                     * self.pattern.repeat * len(self.pattern),
                 'wall clock time': detector_time\
-                                   * self.repeat * len(self.pattern)}
+                                   * self.pattern.repeat * len(self.pattern)}
 
 
     def cals(self):
@@ -58,14 +57,14 @@ class ObservingBlock():
 
 
     def __str__(self):
-        return (f'{str(self.target):15s}|{str(self.pattern):19s}|'
-                f'{self.repeat:6d} |{str(self.detconfig):35s}|'
+        return (f'{str(self.target):15s}|{str(self.pattern):22s}|'
+                f'{str(self.detconfig):36s}|'
                 f'{str(self.instconfig):45s}')
 
 
     def __repr__(self):
-        return (f'{str(self.target):15s}|{str(self.pattern):19s}|'
-                f'{self.repeat:6d} |{str(self.detconfig):35s}|'
+        return (f'{str(self.target):15s}|{str(self.pattern):22s}|'
+                f'{str(self.detconfig):36s}|'
                 f'{str(self.instconfig):45s}')
 
 
@@ -104,9 +103,9 @@ class ObservingBlockList(UserList):
 
 
     def __str__(self):
-        output = [(f'{"Target":15s}|{"Pattern":19s}|{"repeat":7s}|'
-                   f'{"DetectorConfig":35s}|{"InstrumentConfig":45s}'),
-                  (f'{"-"*15:15s}|{"-"*19:19s}|{"-"*7:7s}|{"-"*35:35s}|'
+        output = [(f'{"Target":15s}|{"Pattern":22s}|'
+                   f'{"DetectorConfig":36s}|{"InstrumentConfig":45s}'),
+                  (f'{"-"*15:15s}|{"-"*22:22}|{"-"*36:36s}|'
                    f'{"-"*45:45s}')]
         for item in self.data:
             output.append(item.__str__())
@@ -114,9 +113,9 @@ class ObservingBlockList(UserList):
 
 
     def __repr__(self):
-        output = [(f'{"Target":15s}|{"Pattern":19s}|{"repeat":7s}|'
-                   f'{"DetectorConfig":35s}|{"InstrumentConfig":45s}'),
-                  (f'{"-"*15:15s}|{"-"*19:19s}|{"-"*7:7s}|{"-"*35:35s}|'
+        output = [(f'{"Target":15s}|{"Pattern":22s}|'
+                   f'{"DetectorConfig":36s}|{"InstrumentConfig":45s}'),
+                  (f'{"-"*15:15s}|{"-"*22:22s}|{"-"*36:36s}|'
                    f'{"-"*45:45s}')]
         for item in self.data:
             output.append(item.__str__())

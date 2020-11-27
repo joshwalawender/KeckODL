@@ -129,26 +129,22 @@ class MOSFIREConfig(InstrumentConfig):
 
         cals = ObservingBlockList()
         cals.append(ObservingBlock(target=DomeFlats(),
-                                   pattern=Stare(),
+                                   pattern=Stare(repeat=7),
                                    detconfig=mosfire_11s,
-                                   instconfig=self.domeflats(),
-                                   repeat=7))
+                                   instconfig=self.domeflats()))
         if self.filter == 'K':
             cals.append(ObservingBlock(target=DomeFlats(),
-                                       pattern=Stare(),
+                                       pattern=Stare(repeat=7),
                                        detconfig=mosfire_11s,
-                                       instconfig=self.domeflats(off=True),
-                                       repeat=7))
+                                       instconfig=self.domeflats(off=True)))
             cals.append(ObservingBlock(target=None,
-                                       pattern=Stare(),
+                                       pattern=Stare(repeat=2),
                                        detconfig=mosfire_1s,
-                                       instconfig=self.arcs('Ne'),
-                                       repeat=2))
+                                       instconfig=self.arcs('Ne')))
             cals.append(ObservingBlock(target=None,
-                                       pattern=Stare(),
+                                       pattern=Stare(repeat=2),
                                        detconfig=mosfire_1s,
-                                       instconfig=self.arcs('Ar'),
-                                       repeat=2))
+                                       instconfig=self.arcs('Ar')))
         return cals
 
 
@@ -182,15 +178,16 @@ class MOSFIREConfig(InstrumentConfig):
 ##-------------------------------------------------------------------------
 ## Pre-Defined Patterns
 ##-------------------------------------------------------------------------
-def ABBA(offset=1.25*u.arcsec, guide=True):
+def ABBA(offset=1.25*u.arcsec, guide=True, repeat=1):
     o1 = TelescopeOffset(dx=0, dy=+offset, posname="A", guide=guide, frame=slit)
     o2 = TelescopeOffset(dx=0, dy=-offset, posname="B", guide=guide, frame=slit)
     o3 = TelescopeOffset(dx=0, dy=-offset, posname="B", guide=guide, frame=slit)
     o4 = TelescopeOffset(dx=0, dy=+offset, posname="A", guide=guide, frame=slit)
-    return OffsetPattern([o1, o2, o3, o4], name=f'ABBA ({offset:.2f})')
+    return OffsetPattern([o1, o2, o3, o4], repeat=repeat,
+                         name=f'ABBA ({offset:.2f})')
 
 
-def long2pos(guide=True):
+def long2pos(guide=True, repeat=1):
     o1 = TelescopeOffset(dx=+45*u.arcsec, dy=-23*u.arcsec, posname="A",
                          guide=guide, frame=detector)
     o2 = TelescopeOffset(dx=+45*u.arcsec, dy=-9*u.arcsec, posname="B",
@@ -199,5 +196,5 @@ def long2pos(guide=True):
                          guide=guide, frame=detector)
     o4 = TelescopeOffset(dx=-45*u.arcsec, dy=+23*u.arcsec, posname="B",
                          guide=guide, frame=detector)
-    return OffsetPattern([o1, o2, o3, o4], name=f'long2pos')
+    return OffsetPattern([o1, o2, o3, o4], name=f'long2pos', repeat=repeat)
 

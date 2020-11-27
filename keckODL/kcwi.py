@@ -270,36 +270,30 @@ class KCWIConfig(InstrumentConfig):
         cals = ObservingBlockList()
         if internal is True:
             cals.append(ObservingBlock(target=None,
-                                       pattern=Stare(),
+                                       pattern=Stare(repeat=1),
                                        detconfig=kcwib_6s,
-                                       instconfig=self.contbars(),
-                                       repeat=1))
+                                       instconfig=self.contbars()))
             cals.append(ObservingBlock(target=None,
-                                       pattern=Stare(),
+                                       pattern=Stare(repeat=1),
                                        detconfig=kcwib_30s,
-                                       instconfig=self.arcs('FEAR'),
-                                       repeat=1))
+                                       instconfig=self.arcs('FEAR')))
             cals.append(ObservingBlock(target=None,
-                                       pattern=Stare(),
+                                       pattern=Stare(repeat=1),
                                        detconfig=kcwib_45s,
-                                       instconfig=self.arcs('THAR'),
-                                       repeat=1))
+                                       instconfig=self.arcs('THAR')))
             cals.append(ObservingBlock(target=None,
-                                       pattern=Stare(),
+                                       pattern=Stare(repeat=6),
                                        detconfig=kcwib_6s,
-                                       instconfig=self.arcs('CONT'),
-                                       repeat=6))
+                                       instconfig=self.arcs('CONT')))
             cals.append(ObservingBlock(target=None,
-                                       pattern=Stare(),
+                                       pattern=Stare(repeat=7),
                                        detconfig=kcwib_0s_dark,
-                                       instconfig=self,
-                                       repeat=7))
+                                       instconfig=self))
         if domeflats is True:
             cals.append(ObservingBlock(target=DomeFlats(),
-                                       pattern=Stare(),
+                                       pattern=Stare(repeat=3),
                                        detconfig=kcwib_100s,
-                                       instconfig=self.domeflats(),
-                                       repeat=3))
+                                       instconfig=self.domeflats()))
         return cals
 
 
