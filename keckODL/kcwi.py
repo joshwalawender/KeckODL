@@ -13,7 +13,6 @@ from .detector_config import VisibleDetectorConfig
 from .instrument_config import InstrumentConfig
 from .offset import SkyFrame, InstrumentFrame, TelescopeOffset, OffsetPattern
 from .offset import Stare
-from .sequence import Sequence, SequenceElement
 from .block import ObservingBlock, ObservingBlockList
 from .target import Target, DomeFlats
 
@@ -297,45 +296,6 @@ class KCWIConfig(InstrumentConfig):
         return cals
 
 
-    def seq_cals(self, internal=True, domeflats=True):
-        '''
-        '''
-        kcwib_0s_dark = KCWIblueDetectorConfig(exptime=0, dark=True)
-        kcwib_6s = KCWIblueDetectorConfig(exptime=6)
-        kcwib_30s = KCWIblueDetectorConfig(exptime=30)
-        kcwib_45s = KCWIblueDetectorConfig(exptime=45)
-        kcwib_100s = KCWIblueDetectorConfig(exptime=100)
-
-        cals = Sequence()
-        if internal is True:
-            cals.append(SequenceElement(pattern=Stare(),
-                                        detconfig=kcwib_6s,
-                                        instconfig=self.contbars(),
-                                        repeat=1))
-            cals.append(SequenceElement(pattern=Stare(),
-                                        detconfig=kcwib_30s,
-                                        instconfig=self.arcs('FEAR'),
-                                        repeat=1))
-            cals.append(SequenceElement(pattern=Stare(),
-                                        detconfig=kcwib_45s,
-                                        instconfig=self.arcs('THAR'),
-                                        repeat=1))
-            cals.append(SequenceElement(pattern=Stare(),
-                                        detconfig=kcwib_6s,
-                                        instconfig=self.arcs('CONT'),
-                                        repeat=6))
-            cals.append(SequenceElement(pattern=Stare(),
-                                        detconfig=kcwib_0s_dark,
-                                        instconfig=self,
-                                        repeat=7))
-        if domeflats is True:
-            cals.append(SequenceElement(pattern=Stare(),
-                                        detconfig=kcwib_100s,
-                                        instconfig=self.domeflats(),
-                                        repeat=3))
-        return cals
-
-
     def __str__(self):
         return f'{self.name}'
 
@@ -475,45 +435,6 @@ class KCWIConfig(InstrumentConfig):
 #                                        detconfig=kcwib_100s,
 #                                        instconfig=self.domeflats(),
 #                                        repeat=3))
-#         return cals
-# 
-# 
-#     def seq_cals(self, internal=True, domeflats=True):
-#         '''
-#         '''
-#         kcwib_0s_dark = KCWIblueDetectorConfig(exptime=0, dark=True)
-#         kcwib_6s = KCWIblueDetectorConfig(exptime=6)
-#         kcwib_30s = KCWIblueDetectorConfig(exptime=30)
-#         kcwib_45s = KCWIblueDetectorConfig(exptime=45)
-#         kcwib_100s = KCWIblueDetectorConfig(exptime=100)
-# 
-#         cals = Sequence()
-#         if internal is True:
-#             cals.append(SequenceElement(pattern=Stare(),
-#                                         detconfig=kcwib_6s,
-#                                         instconfig=self.contbars(),
-#                                         repeat=1))
-#             cals.append(SequenceElement(pattern=Stare(),
-#                                         detconfig=kcwib_30s,
-#                                         instconfig=self.arcs('FEAR'),
-#                                         repeat=1))
-#             cals.append(SequenceElement(pattern=Stare(),
-#                                         detconfig=kcwib_45s,
-#                                         instconfig=self.arcs('THAR'),
-#                                         repeat=1))
-#             cals.append(SequenceElement(pattern=Stare(),
-#                                         detconfig=kcwib_6s,
-#                                         instconfig=self.arcs('CONT'),
-#                                         repeat=6))
-#             cals.append(SequenceElement(pattern=Stare(),
-#                                         detconfig=kcwib_0s_dark,
-#                                         instconfig=self,
-#                                         repeat=7))
-#         if domeflats is True:
-#             cals.append(SequenceElement(pattern=Stare(),
-#                                         detconfig=kcwib_100s,
-#                                         instconfig=self.domeflats(),
-#                                         repeat=3))
 #         return cals
 # 
 # 

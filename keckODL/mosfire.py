@@ -11,7 +11,6 @@ from astropy import units as u
 
 from .detector_config import IRDetectorConfig
 from .instrument_config import InstrumentConfig
-from .sequence import SequenceElement, Sequence
 from .offset import SkyFrame, InstrumentFrame, TelescopeOffset, OffsetPattern
 from .offset import Stare
 from .block import ObservingBlock, ObservingBlockList
@@ -145,33 +144,6 @@ class MOSFIREConfig(InstrumentConfig):
                                        pattern=Stare(repeat=2),
                                        detconfig=mosfire_1s,
                                        instconfig=self.arcs('Ar')))
-        return cals
-
-
-    def seq_cals(self):
-        '''
-        '''
-        mosfire_1s = MOSFIREDetectorConfig(exptime=1, readoutmode='CDS')
-        mosfire_11s = MOSFIREDetectorConfig(exptime=11, readoutmode='CDS')
-
-        cals = Sequence()
-        cals.append(SequenceElement(pattern=Stare(),
-                                    detconfig=mosfire_11s,
-                                    instconfig=self.domeflats(),
-                                    repeat=7))
-        if self.filter == 'K':
-            cals.append(SequenceElement(pattern=Stare(),
-                                        detconfig=mosfire_11s,
-                                        instconfig=self.domeflats(off=True),
-                                        repeat=7))
-            cals.append(SequenceElement(pattern=Stare(),
-                                        detconfig=mosfire_1s,
-                                        instconfig=self.arcs('Ne'),
-                                        repeat=2))
-            cals.append(SequenceElement(pattern=Stare(),
-                                        detconfig=mosfire_1s,
-                                        instconfig=self.arcs('Ar'),
-                                        repeat=2))
         return cals
 
 
