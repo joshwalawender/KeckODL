@@ -65,8 +65,9 @@ class MOSFIREDetectorConfig(IRDetectorConfig):
 class MOSFIREConfig(InstrumentConfig):
     '''An object to hold information about MOSFIRE configuration.
     '''
-    def __init__(self, mode='spectroscopy', filter='Y', mask='longslit_46x0.7'):
-        super().__init__()
+    def __init__(self, detconfig=None, mode='spectroscopy', filter='Y',
+                 mask='longslit_46x0.7'):
+        super().__init__(detconfig=detconfig)
         self.instrument = 'MOSFIRE'
         self.mode = mode
         self.filter = filter
@@ -106,6 +107,7 @@ class MOSFIREConfig(InstrumentConfig):
         '''
         '''
         arcs = deepcopy(self)
+        arcs.detconfig = MOSFIREDetectorConfig(exptime=1, readoutmode='CDS')
         arcs.arclamp = lampname
         arcs.name += f' arclamp={arcs.arclamp}'
         return arcs
@@ -115,34 +117,31 @@ class MOSFIREConfig(InstrumentConfig):
         '''
         '''
         domeflats = deepcopy(self)
+        exptime = {'Y': 17, 'J': 11, 'H': 11, 'K': 11}[self.filter]
+        domeflats.detconfig = MOSFIREDetectorConfig(exptime=exptime,
+                                                    readoutmode='CDS')
         domeflats.domeflatlamp = not off
-        domeflats.name += f' domeflatlamp={domeflats.domeflatlamp}'
+        lamp_str = {False: 'on', True: 'off'}[off]
+        domeflats.name += f' domelamp={lamp_str}'
         return domeflats
 
 
     def cals(self):
         '''
         '''
-        mosfire_1s = MOSFIREDetectorConfig(exptime=1, readoutmode='CDS')
-        mosfire_11s = MOSFIREDetectorConfig(exptime=11, readoutmode='CDS')
-
         cals = ObservingBlockList()
         cals.append(ObservingBlock(target=DomeFlats(),
                                    pattern=Stare(repeat=7),
-                                   detconfig=mosfire_11s,
                                    instconfig=self.domeflats()))
         if self.filter == 'K':
             cals.append(ObservingBlock(target=DomeFlats(),
                                        pattern=Stare(repeat=7),
-                                       detconfig=mosfire_11s,
                                        instconfig=self.domeflats(off=True)))
             cals.append(ObservingBlock(target=None,
                                        pattern=Stare(repeat=2),
-                                       detconfig=mosfire_1s,
                                        instconfig=self.arcs('Ne')))
             cals.append(ObservingBlock(target=None,
                                        pattern=Stare(repeat=2),
-                                       detconfig=mosfire_1s,
                                        instconfig=self.arcs('Ar')))
         return cals
 

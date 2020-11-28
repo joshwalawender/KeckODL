@@ -1,10 +1,5 @@
 /targets.txt
 /starlist.txt
-/kcwi_1800s.txt
-/mosfire_120s.txt
-/mosfire_180s.txt
-/KCWI_medslicer_4800.txt
-/mypattern.txt
 offset_*.txt
-KCWIconfig_*.txt
 detector_*.txt
+instrument_*.txt
