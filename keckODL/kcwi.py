@@ -143,7 +143,7 @@ class KCWIredDetectorConfig(VisibleDetectorConfig):
 class KCWIConfig(InstrumentConfig):
     '''An object to hold information about KCWI Blue+Red configuration.
     '''
-    def __init__(self, slicer='medium', 
+    def __init__(self, detconfig=None, slicer='medium', 
                  bluegrating='BH3', bluefilter='KBlue',
                  bluecwave=4800, bluepwave=None,
                  bluenandsmask=False, bluefocus=None,
@@ -154,6 +154,7 @@ class KCWIConfig(InstrumentConfig):
                  domeflatlamp=None, polarizer='Sky'):
         super().__init__()
         self.instrument = 'KCWIblue'
+        self.detconfig = detconfig
         self.slicer = slicer
         self.polarizer = polarizer
 
@@ -226,21 +227,11 @@ class KCWIConfig(InstrumentConfig):
         return output
 
 
-    def arcs(self, lampname):
-        '''
-        '''
-        arcs = deepcopy(self)
-        arcs.arclamp = lampname
-        arcs.calobj = 'FlatA'
-        arcs.name += f' arclamp={arcs.arclamp}'
-        arcs.name += f' calobj={arcs.calobj}'
-        return arcs
-
-
     def contbars(self):
         '''
         '''
         contbars = deepcopy(self)
+        contbars.detconfig = KCWIblueDetectorConfig(exptime=6)
         contbars.calobj = 'MedBarsA'
         contbars.arclamp = 'CONT'
         contbars.name += f' arclamp={contbars.arclamp}'
@@ -248,50 +239,61 @@ class KCWIConfig(InstrumentConfig):
         return contbars
 
 
+    def arcs(self, lampname):
+        '''
+        '''
+        arcs = deepcopy(self)
+        exptime = {'FEAR': 30, 'THAR': 45, 'CONT': 6}[lampname]
+        arcs.detconfig = KCWIblueDetectorConfig(exptime=exptime)
+        arcs.arclamp = lampname
+        arcs.calobj = 'FlatA'
+        arcs.name += f' arclamp={arcs.arclamp}'
+        arcs.name += f' calobj={arcs.calobj}'
+        return arcs
+
+
     def domeflats(self, off=False):
         '''
         '''
         domeflats = deepcopy(self)
+        domeflats.detconfig = KCWIblueDetectorConfig(exptime=100)
         domeflats.domeflatlamp = not off
         domeflats.name += f' domeflatlamp={domeflats.domeflatlamp}'
         return domeflats
 
 
+    def bias(self):
+        '''
+        '''
+        bias = deepcopy(self)
+        bias.detconfig = KCWIblueDetectorConfig(exptime=0, dark=True)
+        bias.name += f' bias'
+        return bias
+
+
     def cals(self, internal=True, domeflats=True):
         '''
         '''
-        kcwib_0s_dark = KCWIblueDetectorConfig(exptime=0, dark=True)
-        kcwib_6s = KCWIblueDetectorConfig(exptime=6)
-        kcwib_30s = KCWIblueDetectorConfig(exptime=30)
-        kcwib_45s = KCWIblueDetectorConfig(exptime=45)
-        kcwib_100s = KCWIblueDetectorConfig(exptime=100)
-
         cals = ObservingBlockList()
         if internal is True:
             cals.append(ObservingBlock(target=None,
                                        pattern=Stare(repeat=1),
-                                       detconfig=kcwib_6s,
                                        instconfig=self.contbars()))
             cals.append(ObservingBlock(target=None,
                                        pattern=Stare(repeat=1),
-                                       detconfig=kcwib_30s,
                                        instconfig=self.arcs('FEAR')))
             cals.append(ObservingBlock(target=None,
                                        pattern=Stare(repeat=1),
-                                       detconfig=kcwib_45s,
                                        instconfig=self.arcs('THAR')))
             cals.append(ObservingBlock(target=None,
                                        pattern=Stare(repeat=6),
-                                       detconfig=kcwib_6s,
                                        instconfig=self.arcs('CONT')))
             cals.append(ObservingBlock(target=None,
                                        pattern=Stare(repeat=7),
-                                       detconfig=kcwib_0s_dark,
-                                       instconfig=self))
+                                       instconfig=self.bias()))
         if domeflats is True:
             cals.append(ObservingBlock(target=DomeFlats(),
                                        pattern=Stare(repeat=3),
-                                       detconfig=kcwib_100s,
                                        instconfig=self.domeflats()))
         return cals
 
@@ -304,143 +306,3 @@ class KCWIConfig(InstrumentConfig):
         return f'{self.name}'
 
 
-##-------------------------------------------------------------------------
-## KCWIblueConfig
-##-------------------------------------------------------------------------
-# class KCWIblueConfig(InstrumentConfig):
-#     '''An object to hold information about KCWI Blue configuration.
-#     '''
-#     def __init__(self, slicer='medium', grating='BH3', filter='KBlue',
-#                  cwave=4800, pwave=None, nandsmask=False, focus=None,
-#                  calmirror='Sky', calobj='Dark', arclamp=None,
-#                  domeflatlamp=None, polarizer='Sky'):
-#         super().__init__()
-#         self.instrument = 'KCWIblue'
-#         self.slicer = slicer
-#         self.grating = grating
-#         self.filter = filter
-#         self.nandsmask = nandsmask
-#         self.focus = focus
-#         self.calmirror = calmirror
-#         self.calobj = calobj
-#         self.arclamp = arclamp
-#         self.domeflatlamp = domeflatlamp
-#         self.polarizer = polarizer
-#         self.cwave = cwave
-#         self.pwave = cwave-300 if pwave is None else pwave
-#         self.name = f'{self.slicer} {self.grating} {self.cwave*u.A:.0f}'
-#         if self.calobj != 'Dark':
-#             self.name += f' calobj={self.calobj}'
-#         if self.arclamp is not None:
-#             self.name += f' arclamp={self.arclamp}'
-#         if self.domeflatlamp is not None:
-#             self.name += f' domeflatlamp={self.domeflatlamp}'
-# 
-# 
-#     def validate(self):
-#         '''Check values and verify that they meet assumptions.
-#         
-#         Check:
-#         
-#         Warn:
-#         '''
-#         pass
-# 
-# 
-#     def to_dict(self):
-#         output = super().to_dict()
-#         output['slicer'] = self.slicer
-#         output['grating'] = self.grating
-#         output['filter'] = self.filter
-#         output['nandsmask'] = self.nandsmask
-#         output['focus'] = self.focus
-#         output['calmirror'] = self.calmirror
-#         output['calobj'] = self.calobj
-#         output['polarizer'] = self.polarizer
-#         output['cwave'] = self.cwave
-#         output['pwave'] = self.pwave
-#         return output
-# 
-# 
-#     def arcs(self, lampname):
-#         '''
-#         '''
-#         arcs = deepcopy(self)
-#         arcs.arclamp = lampname
-#         arcs.calobj = 'FlatA'
-#         arcs.name += f' arclamp={arcs.arclamp}'
-#         arcs.name += f' calobj={arcs.calobj}'
-#         return arcs
-# 
-# 
-#     def contbars(self):
-#         '''
-#         '''
-#         contbars = deepcopy(self)
-#         contbars.calobj = 'MedBarsA'
-#         contbars.arclamp = 'CONT'
-#         contbars.name += f' arclamp={contbars.arclamp}'
-#         contbars.name += f' calobj={contbars.calobj}'
-#         return contbars
-# 
-# 
-#     def domeflats(self, off=False):
-#         '''
-#         '''
-#         domeflats = deepcopy(self)
-#         domeflats.domeflatlamp = not off
-#         domeflats.name += f' domeflatlamp={domeflats.domeflatlamp}'
-#         return domeflats
-# 
-# 
-#     def cals(self, internal=True, domeflats=True):
-#         '''
-#         '''
-#         kcwib_0s_dark = KCWIblueDetectorConfig(exptime=0, dark=True)
-#         kcwib_6s = KCWIblueDetectorConfig(exptime=6)
-#         kcwib_30s = KCWIblueDetectorConfig(exptime=30)
-#         kcwib_45s = KCWIblueDetectorConfig(exptime=45)
-#         kcwib_100s = KCWIblueDetectorConfig(exptime=100)
-# 
-#         cals = ObservingBlockList()
-#         if internal is True:
-#             cals.append(ObservingBlock(target=None,
-#                                        pattern=Stare(),
-#                                        detconfig=kcwib_6s,
-#                                        instconfig=self.contbars(),
-#                                        repeat=1))
-#             cals.append(ObservingBlock(target=None,
-#                                        pattern=Stare(),
-#                                        detconfig=kcwib_30s,
-#                                        instconfig=self.arcs('FEAR'),
-#                                        repeat=1))
-#             cals.append(ObservingBlock(target=None,
-#                                        pattern=Stare(),
-#                                        detconfig=kcwib_45s,
-#                                        instconfig=self.arcs('THAR'),
-#                                        repeat=1))
-#             cals.append(ObservingBlock(target=None,
-#                                        pattern=Stare(),
-#                                        detconfig=kcwib_6s,
-#                                        instconfig=self.arcs('CONT'),
-#                                        repeat=6))
-#             cals.append(ObservingBlock(target=None,
-#                                        pattern=Stare(),
-#                                        detconfig=kcwib_0s_dark,
-#                                        instconfig=self,
-#                                        repeat=7))
-#         if domeflats is True:
-#             cals.append(ObservingBlock(target=DomeFlats(),
-#                                        pattern=Stare(),
-#                                        detconfig=kcwib_100s,
-#                                        instconfig=self.domeflats(),
-#                                        repeat=3))
-#         return cals
-# 
-# 
-#     def __str__(self):
-#         return f'{self.name}'
-# 
-# 
-#     def __repr__(self):
-#         return f'{self.name}'

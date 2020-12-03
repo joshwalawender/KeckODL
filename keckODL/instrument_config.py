@@ -18,9 +18,10 @@ class InstrumentConfigWarning(UserWarning): pass
 class InstrumentConfig():
     '''An object to hold information about an instrument configuration.
     '''
-    def __init__(self, name='GenericInstrumentConfig'):
+    def __init__(self, name='GenericInstrumentConfig', detconfig=None):
         self.name = name
         self.instrument = 'unknown'
+        self.detconfig = detconfig
 
 
     def validate(self):
@@ -29,7 +30,8 @@ class InstrumentConfig():
 
     def to_dict(self):
         return {'name': self.name,
-                'instrument': self.instrument}
+                'instrument': self.instrument,
+                'detconfig': [dc.name for dc in self.detconfig]}
 
 
     def to_YAML(self):
@@ -60,6 +62,21 @@ class InstrumentConfig():
         '''
         pass
 
+
+    def estimate_time(self):
+        '''Estimate the wall clock time to complete the data taking sequence.
+        '''
+        if type(self.detconfig) in [list, tuple]:
+            t = [dc.estimate_clock_time() for dc in self.detconfig]
+            detector_time = max(t)
+            e = [dc.exptime*dc.nexp for dc in self.detconfig]
+            exposure_time = max(e)
+        else:
+            detector_time = self.detconfig.estimate_clock_time()
+            exposure_time = self.detconfig.exptime
+
+        return {'shutter open time': exposure_time,
+                'wall clock time': detector_time}
 
     def __str__(self):
         return f'{self.name}'

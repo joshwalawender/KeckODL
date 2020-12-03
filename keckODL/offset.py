@@ -113,7 +113,7 @@ class InstrumentFrame(OffsetFrame):
 ##-------------------------------------------------------------------------
 class TelescopeOffset():
     '''Describes a telescope offset for the purposes of including it in an
-    observing sequence.
+    OffsetPattern.
     '''
     def __init__(self, dx=0, dy=0, dr=0, relative=False, frame=SkyFrame(),
                  posname='', guide=True):
@@ -209,7 +209,7 @@ class TelescopeOffset():
 ##-------------------------------------------------------------------------
 class OffsetPattern(UserList):
     '''Describes a telescope offset for the purposes of including it in an
-    observing sequence.
+    observing block.
     '''
     def __init__(self, liste, name='', repeat=1):
         super().__init__(liste)
