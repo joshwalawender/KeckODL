@@ -21,10 +21,7 @@ class InstrumentConfig():
     def __init__(self, name='GenericInstrumentConfig', detconfig=None):
         self.name = name
         self.instrument = 'unknown'
-        if type(detconfig) not in [list, tuple]:
-            self.detconfig = [detconfig]
-        else:
-            self.detconfig = list(detconfig)
+        self.detconfig = detconfig
 
 
     def validate(self):
@@ -67,7 +64,7 @@ class InstrumentConfig():
 
 
     def estimate_time(self):
-        '''Estimate the wall clock time to complete the sequence.
+        '''Estimate the wall clock time to complete the data taking sequence.
         '''
         if type(self.detconfig) in [list, tuple]:
             t = [dc.estimate_clock_time() for dc in self.detconfig]
