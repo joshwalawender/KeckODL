@@ -53,12 +53,11 @@ class DetectorConfig():
 
 
     def to_dict(self):
-        return {'name': self.name,
-                'instrument': self.instrument,
-                'exptime': self.exptime,
-                'nexp': self.nexp,
-                'readoutmode': self.readoutmode}
-
+        return {'DetectorConfigs': [{'name': self.name,
+                                     'instrument': self.instrument,
+                                     'exptime': self.exptime,
+                                     'nexp': self.nexp,
+                                     'readoutmode': self.readoutmode}]}
 
     def to_YAML(self):
         '''Return string corresponding to a Detector Config Description
@@ -72,7 +71,7 @@ class DetectorConfig():
         p = Path(file).expanduser().absolute()
         if p.exists(): p.unlink()
         with open(p, 'w') as FO:
-            FO.write(yaml.dump(self.to_dict()))
+            FO.write(yaml.dump([self.to_dict()]))
 
 
     def estimate_clock_time(self):
@@ -116,7 +115,7 @@ class IRDetectorConfig(DetectorConfig):
 
     def to_dict(self):
         output = super().to_dict()
-        output['coadds'] = self.coadds
+        output['DetectorConfigs'][0]['coadds'] = self.coadds
         return output
 
 
@@ -164,10 +163,10 @@ class VisibleDetectorConfig(DetectorConfig):
 
     def to_dict(self):
         output = super().to_dict()
-        output['ampmode'] = self.ampmode
-        output['dark'] = self.dark
-        output['binning'] = self.binning
-        output['window'] = self.window
+        output['DetectorConfigs'][0]['ampmode'] = self.ampmode
+        output['DetectorConfigs'][0]['dark'] = self.dark
+        output['DetectorConfigs'][0]['binning'] = self.binning
+        output['DetectorConfigs'][0]['window'] = self.window
         return output
 
 

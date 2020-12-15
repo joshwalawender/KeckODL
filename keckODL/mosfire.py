@@ -95,11 +95,11 @@ class MOSFIREConfig(InstrumentConfig):
 
     def to_dict(self):
         output = super().to_dict()
-        output['filter'] = self.filter
-        output['mode'] = self.mode
-        output['mask'] = self.mask
-        output['arclamp'] = self.arclamp
-        output['domeflatlamp'] = self.domeflatlamp
+        output['InstrumentConfigs'][0]['filter'] = self.filter
+        output['InstrumentConfigs'][0]['mode'] = self.mode
+        output['InstrumentConfigs'][0]['mask'] = self.mask
+        output['InstrumentConfigs'][0]['arclamp'] = self.arclamp
+        output['InstrumentConfigs'][0]['domeflatlamp'] = self.domeflatlamp
         return output
 
 

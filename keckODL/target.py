@@ -18,7 +18,8 @@ acquisition_modes = ['guider: bright',
                      'guider: faint',
                      'guider: offset',
                      'mask align',
-                     'blind']
+                     'blind',
+                     'none']
 object_types = ['science',
                 'sky',
                 'flux standard',
@@ -414,11 +415,9 @@ class Target():
         return TDL_dict
 
 
-    def to_YAML(self):
-        '''Return string corresponding to a Target Description Language (TDL)
-        YAML entry.
-        '''
-        return yaml.dump(self.to_dict())
+    def write(self, file):
+        tl = TargetList([self])
+        tl.write(file)
 
 
     def __str__(self):
@@ -453,20 +452,24 @@ class TargetList(UserList):
             self.data[i].obstime = obstime
 
 
+    def to_dict(self):
+        self.validate()
+        return {'Targets': [t.to_dict() for t in self.data]}
+
+
     def write(self, file):
         '''Write the target list to a YAML formatted file.
         '''
-        self.validate()
         p = Path(file).expanduser().absolute()
         if p.exists(): p.unlink()
         with open(p, 'w') as FO:
-            list_of_dicts = [t.to_dict() for t in self.data]
-            FO.write(yaml.dump(list_of_dicts))
+            FO.write(yaml.dump([self.to_dict()]))
 
 
     def read(self, file):
         '''Read targets from a YAML formatted file.
         '''
+        raise NotImplementedError
         p = Path(file).expanduser().absolute()
         if p.exists() is False:
             raise FileNotFoundError
@@ -523,6 +526,11 @@ class TargetList(UserList):
         return self.to_starlist()
 
 
+##-------------------------------------------------------------------------
+## Pre-Defined Targets
+##-------------------------------------------------------------------------
 def DomeFlats(PA=0):
+    '''Function to return a Target for dome flats
+    '''
     return Target(name='DomeFlats', rotmode='Stationary', PA=PA,
                   objecttype='cal', acquisition='blind')

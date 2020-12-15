@@ -29,9 +29,9 @@ class InstrumentConfig():
 
 
     def to_dict(self):
-        return {'name': self.name,
-                'instrument': self.instrument,
-                'detconfig': [dc.name for dc in self.detconfig]}
+        return {'InstrumentConfigs': [{'name': self.name,
+                                       'instrument': self.instrument,
+                                       'detconfig': [dc.name for dc in self.detconfig]}]}
 
 
     def to_YAML(self):
@@ -46,7 +46,7 @@ class InstrumentConfig():
         p = Path(file).expanduser().absolute()
         if p.exists(): p.unlink()
         with open(p, 'w') as FO:
-            FO.write(yaml.dump(self.to_dict()))
+            FO.write(yaml.dump([self.to_dict()]))
 
 
     def arcs(self, lampname):

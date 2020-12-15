@@ -225,12 +225,10 @@ class OffsetPattern(UserList):
                 raise OffsetError(f'All offsets must have the same frame')
 
 
-    def to_YAML(self):
-        offsets = [item.to_dict() for item in self.data]
-        outputdict = {'name': self.name,
-                      'repeat': self.repeat,
-                      'offsets': offsets}
-        return yaml.dump(outputdict)
+    def to_dict(self):
+        return {'OffsetPatterns': [{'name': self.name,
+                                    'repeat': self.repeat,
+                                    'offsets': [x.to_dict() for x in self.data]}]}
 
 
     def write(self, file):
@@ -240,7 +238,7 @@ class OffsetPattern(UserList):
         p = Path(file).expanduser().absolute()
         if p.exists(): p.unlink()
         with open(p, 'w') as FO:
-            FO.write(self.to_YAML())
+            FO.write(yaml.dump([self.to_dict()]))
 
 
     def __str__(self):
