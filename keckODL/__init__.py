@@ -1,11 +1,14 @@
 import requests
 import yaml
 from warnings import warn
+from astropy import units as u
 
 from .target import Target, TargetList
-from .offset import OffsetPattern
+from .offset import OffsetPattern, TelescopeOffset
 from .instrument_config import InstrumentConfig
 from .detector_config import DetectorConfig
+from . import offset
+
 
 db_upload_url = 'http://vm-webtools.keck.hawaii.edu:59999/'
 
@@ -49,39 +52,49 @@ def parse_yaml(contents):
     dcs = [] # List of output DetectorConfigs
     for entry in contents:
         # Read Targets
-        if len(entry['Targets']) > 0:
-            targets = [Target(name=d.get('name', None),
-                              RA=d.get('RA', None),
-                              Dec=d.get('Dec', None),
-                              equinox=d.get('equinox', None),
-                              rotmode=d.get('rotmode', None),
-                              PA=d.get('PA', None),
-                              RAOffset=d.get('RAOffset', None),
-                              DecOffset=d.get('DecOffset', None),
-                              objecttype=d.get('objecttype', None),
-                              acquisition=d.get('acquisition', None),
-                              frame=d.get('frame', None),
-                              PMRA=d.get('PMRA', 0),
-                              PMDec=d.get('PMDec', 0),
-                              epoch=d.get('epoch', None),
-                              obstime=d.get('obstime', None),
-                              mag = d.get('mag', {}),
-                              comment=d.get('comment', None),)\
-                       for d in entry['Targets']]
-            tl.append(targets)
+        if 'Targets' in entry.keys():
+            for td in entry['Targets']:
+                tl.append(Target(name=td.get('name', None),
+                                 RA=td.get('RA', None),
+                                 Dec=td.get('Dec', None),
+                                 equinox=td.get('equinox', None),
+                                 rotmode=td.get('rotmode', None),
+                                 PA=td.get('PA', None),
+                                 RAOffset=td.get('RAOffset', None),
+                                 DecOffset=td.get('DecOffset', None),
+                                 objecttype=td.get('objecttype', None),
+                                 acquisition=td.get('acquisition', None),
+                                 frame=td.get('frame', None),
+                                 PMRA=td.get('PMRA', 0),
+                                 PMDec=td.get('PMDec', 0),
+                                 epoch=td.get('epoch', None),
+                                 obstime=td.get('obstime', None),
+                                 mag=td.get('mag', {}),
+                                 comment=td.get('comment', None),)\
+                                 )
         # Read OffsetPatterns
-        if len(entry['OffsetPatterns']) > 0:
-            offsets = [TelescopeOffset(dx=d.get('dx', 0),
-                                       dy=d.get('dy', 0),
-                                       dr=d.get('dr', 0),
-                                       relative=d.get('relative', False),
-                                       frame=getattr(sys.modules[__name__],
-                                                     d.get('frame', 'SkyFrame'))(),
-                                       posname=d.get('posname', ''),
-                                       guide=d.get('guide', True))
-                       for d['offsets'] in entry['OffsetPatterns']]
-            ops.append(OffsetPattern(offsets,
-                           name=entry['OffsetPatterns'].get('name', ''),
-                           repeat=entry['OffsetPatterns'].get('repeat', 1)))
-    return tl, op, ics, dcs
+        if 'OffsetPatterns' in entry.keys():
+            for op in entry['OffsetPatterns']:
+                offsets = [TelescopeOffset(dx=o.get('dx', 0*u.arcsec),
+                                           dy=o.get('dy', 0*u.arcsec),
+                                           dr=o.get('dr', 0*u.arcsec),
+                                           relative=o.get('relative', False),
+                                           frame=getattr(offset,
+                                                         o.get('frame', 'SkyFrame'))(),
+                                           posname=o.get('posname', ''),
+                                           guide=o.get('guide', True))
+                                           for o in op['offsets']]
+                ops.append(OffsetPattern(offsets,
+                           name=op.get('name', ''),
+                           repeat=op.get('repeat', 1)))
+        # Read InstrumentConfigs
+        if 'InstrumentConfigs' in entry.keys():
+            for ic in entry['InstrumentConfigs']:
+                ics.append(InstrumentConfig())
+        # Read DetectorConfigs
+        if 'DetectorConfigs' in entry.keys():
+            for ic in entry['DetectorConfigs']:
+                ics.append(DetectorConfig())
+
+    return tl, ops, ics, dcs
 

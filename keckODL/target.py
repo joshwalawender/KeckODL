@@ -223,7 +223,7 @@ class Target():
             else:
                 self.equinox = equinox
 
-        self.validate()
+#         self.validate()
 
 
     ##-------------------------------------------------------------------------
@@ -453,7 +453,7 @@ class TargetList(UserList):
 
 
     def to_dict(self):
-        self.validate()
+        # self.validate()
         return {'Targets': [t.to_dict() for t in self.data]}
 
 
@@ -504,7 +504,7 @@ class TargetList(UserList):
         '''Return a string representation of the Targets which matches the
         formatting specification of a Keck star list.
         '''
-        self.validate()
+#         self.validate()
         starlist_str = ''
         for t in self.data:
             starlist_str += t.to_starlist() + '\n'
@@ -514,7 +514,7 @@ class TargetList(UserList):
     def write_starlist(self, file):
         '''Write the target list to a Keck star list formatted file.
         '''
-        self.validate()
+#         self.validate()
         p = Path(file).expanduser().absolute()
         if p.exists(): p.unlink()
         with open(p, 'w') as FO:
