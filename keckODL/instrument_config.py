@@ -21,7 +21,7 @@ class InstrumentConfig():
     def __init__(self, name='GenericInstrumentConfig', detconfig=None):
         self.name = name
         self.instrument = 'unknown'
-        self.detconfig = detconfig
+        self.detconfig = detconfig if type(detconfig) is list else [detconfig]
 
 
     def validate(self):

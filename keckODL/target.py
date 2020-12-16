@@ -466,15 +466,8 @@ class TargetList(UserList):
             FO.write(yaml.dump([self.to_dict()]))
 
 
-    def read(self, file):
-        '''Read targets from a YAML formatted file.
-        '''
-        raise NotImplementedError
-        p = Path(file).expanduser().absolute()
-        if p.exists() is False:
-            raise FileNotFoundError
-        with open(p, 'r') as FO:
-            list_of_dicts = yaml.safe_load(FO)
+    def parse_yaml(self, contents):
+        list_of_dicts = contents[0]['Targets']
         targets = [Target(name=d.get('name', None),
                           RA=d.get('RA', None),
                           Dec=d.get('Dec', None),
@@ -494,6 +487,17 @@ class TargetList(UserList):
                           comment=d.get('comment', None),)\
                    for d in list_of_dicts]
         return TargetList(targets)
+
+
+    def read(self, file):
+        '''Read targets from a YAML formatted file.
+        '''
+        p = Path(file).expanduser().absolute()
+        if p.exists() is False:
+            raise FileNotFoundError
+        with open(p, 'r') as FO:
+            contents = yaml.safe_load(FO)
+        return self.parse_yaml(contents)
 
 
     def to_starlist(self):

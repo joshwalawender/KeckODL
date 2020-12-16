@@ -154,7 +154,6 @@ class KCWIConfig(InstrumentConfig):
                  domeflatlamp=None, polarizer='Sky'):
         super().__init__()
         self.instrument = 'KCWIblue'
-        self.detconfig = detconfig
         self.slicer = slicer
         self.polarizer = polarizer
 

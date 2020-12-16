@@ -1,6 +1,7 @@
 #!python3
 
 ## Import General Tools
+import sys
 from pathlib import Path
 from astropy import units as u
 from collections import UserList
@@ -211,18 +212,19 @@ class OffsetPattern(UserList):
     '''Describes a telescope offset for the purposes of including it in an
     observing block.
     '''
-    def __init__(self, liste, name='', repeat=1):
-        super().__init__(liste)
+    def __init__(self, *args, name='', repeat=1):
+        super().__init__(*args)
         self.name = f'{name} x{repeat}'
         self.repeat = repeat
         self.validate()
 
 
     def validate(self):
-        oframe = type(self.data[0].frame)
-        for item in self.data:
-            if isinstance(item.frame, oframe) is False:
-                raise OffsetError(f'All offsets must have the same frame')
+        if len(self.data) > 0:
+            oframe = type(self.data[0].frame)
+            for item in self.data:
+                if isinstance(item.frame, oframe) is False:
+                    raise OffsetError(f'All offsets must have the same frame')
 
 
     def to_dict(self):
@@ -239,6 +241,42 @@ class OffsetPattern(UserList):
         if p.exists(): p.unlink()
         with open(p, 'w') as FO:
             FO.write(yaml.dump([self.to_dict()]))
+
+
+    def parse_yaml(self, contents):
+        list_of_dicts = contents[0]['OffsetPatterns']
+
+        for d in list_of_dicts:
+            for offset in d['offsets']:
+                print(offset)
+                frame_name = offset.get('frame', 'SkyFrame')
+                print(frame_name)
+                frame_class = getattr(sys.modules[__name__], offset.get('frame', 'SkyFrame'))
+                print(frame_class)
+                frame_object = frame_class()
+                print(frame_object)
+                print()
+
+            offsets = [TelescopeOffset(dx=d.get('dx', 0),
+                                       dy=d.get('dy', 0),
+                                       dr=d.get('dr', 0),
+                                       relative=d.get('relative', False),
+                                       frame=getattr(sys.modules[__name__], d.get('frame', 'SkyFrame'))(),
+                                       posname=d.get('posname', ''),
+                                       guide=d.get('guide', True))
+                       for d['offsets'] in list_of_dicts]
+        return OffsetPattern(offsets)
+
+
+    def read(self, file):
+        '''Read targets from a YAML formatted file.
+        '''
+        p = Path(file).expanduser().absolute()
+        if p.exists() is False:
+            raise FileNotFoundError
+        with open(p, 'r') as FO:
+            contents = yaml.safe_load(FO)
+        return self.parse_yaml(contents)
 
 
     def __str__(self):
