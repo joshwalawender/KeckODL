@@ -1,16 +1,16 @@
 - Targets:
-  - Dec: -5.123138480643963
+  - Dec: -5.123161842862821
     DecOffset: -4.5
     PA: 90
     PMDec: -10
     PMRA: 10
-    RA: 82.62364400988731
+    RA: 82.6236674747452
     RAOffset: 8.4
     acquisition: 'guider: offset'
     comment: Star formation is cool
     ddec: 0
     dra: 0
-    epoch: 2020.9584702572834
+    epoch: 2020.9670985702728
     equinox: 1999.9999085590325
     frame: icrs
     mag:
@@ -32,7 +32,7 @@
     comment: Galaxies are boring
     ddec: 0
     dra: 0
-    epoch: 2020.9584702577017
+    epoch: 2020.9670985707821
     equinox: 1999.9999085590325
     frame: icrs
     mag:
@@ -43,18 +43,18 @@
     obstime: null
     rotmode: PA
     wrap: north
-  - Dec: 31.3688
+  - Dec: 31.31
     DecOffset: null
     PA: 22.5
     PMDec: 0
     PMRA: 0
-    RA: 52.2873
+    RA: 52.297
     RAOffset: null
     acquisition: blind
     comment: Low mass star formation is the coolest
     ddec: 0
     dra: 0
-    epoch: 2020.9584702580244
+    epoch: 2020.9670985710284
     equinox: 1999.9999085590325
     frame: icrs
     mag: {}
@@ -63,18 +63,18 @@
     obstime: null
     rotmode: PA
     wrap: null
-  - Dec: -5.1656028563457
+  - Dec: -5.16560286
     DecOffset: null
-    PA: 0
+    PA: null
     PMDec: 0
     PMRA: 0
-    RA: 349.9933312710857
+    RA: 349.99333127
     RAOffset: null
     acquisition: 'guider: bright'
     comment: I guess we need a standard
     ddec: 0
     dra: 0
-    epoch: 2020.9584702582335
+    epoch: 2020.9670985713024
     equinox: 1999.9999085590325
     frame: icrs
     mag: {}
@@ -83,31 +83,6 @@
     obstime: null
     rotmode: vertical
     wrap: null
-- OffsetPatterns:
-  - name: mypattern x1
-    offsets:
-    - dr: 0.0
-      dx: 0.0
-      dy: 0.0
-      frame: SkyFrame
-      guide: true
-      posname: star
-      relative: false
-    - dr: 0.0
-      dx: 60.0
-      dy: 0.0
-      frame: SkyFrame
-      guide: false
-      posname: sky
-      relative: false
-    - dr: 0.0
-      dx: 0.0
-      dy: 0.0
-      frame: SkyFrame
-      guide: true
-      posname: star
-      relative: false
-    repeat: 1
 - DetectorConfigs:
   - ampmode: 9
     binning: 2x2
@@ -140,11 +115,8 @@
     bluepwave: 4500
     calmirror: Sky
     calobj: Dark
-    detconfig:
-    - KCWIblue 1800s x1
-    - KCWIred 926s x2
     domeflatlamp: null
-    instrument: KCWIblue
+    instrument: KCWI
     name: medium BH3 4800 A
     polarizer: Sky
     redcwave: 6563
@@ -154,3 +126,28 @@
     rednandsmask: false
     redpwave: 6263
     slicer: medium
+- OffsetPatterns:
+  - name: mypattern x1
+    offsets:
+    - dr: 0.0
+      dx: 0.0
+      dy: 0.0
+      frame: SkyFrame
+      guide: true
+      posname: star
+      relative: false
+    - dr: 0.0
+      dx: 60.0
+      dy: 0.0
+      frame: SkyFrame
+      guide: false
+      posname: sky
+      relative: false
+    - dr: 0.0
+      dx: 0.0
+      dy: 0.0
+      frame: SkyFrame
+      guide: true
+      posname: star
+      relative: false
+    repeat: 1

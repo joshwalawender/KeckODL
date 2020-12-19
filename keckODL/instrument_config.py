@@ -1,6 +1,7 @@
 #!python3
 
 ## Import General Tools
+import re
 from pathlib import Path
 from astropy import units as u
 import yaml
@@ -18,16 +19,14 @@ class InstrumentConfigWarning(UserWarning): pass
 class InstrumentConfig():
     '''An object to hold information about an instrument configuration.
     '''
-    def __init__(self, name='GenericInstrumentConfig', detconfig=None):
+    def __init__(self, name='GenericInstrumentConfig'):
         self.name = name
         # Determine instrument from class name.  This is needed so the class
         # name and the instrument property have a predictable relationship
         namesearch = re.search("<class 'keckODL.(\w+).(\w+)Config'>",
-                               str(k.__class__))
+                               str(self.__class__))
         self.package = namesearch.group(1)
         self.instrument = namesearch.group(2)
-
-        self.detconfig = detconfig if type(detconfig) in [list, tuple] else [detconfig]
 
 
     def validate(self):
@@ -37,7 +36,7 @@ class InstrumentConfig():
     def to_dict(self):
         return {'InstrumentConfigs': [{'name': self.name,
                                        'instrument': self.instrument,
-                                       'detconfig': [dc.name for dc in self.detconfig]}]}
+                                       }]}
 
 
     def to_YAML(self):
@@ -68,21 +67,6 @@ class InstrumentConfig():
         '''
         pass
 
-
-    def estimate_time(self):
-        '''Estimate the wall clock time to complete the data taking sequence.
-        '''
-        if type(self.detconfig) in [list, tuple]:
-            t = [dc.estimate_clock_time() for dc in self.detconfig]
-            detector_time = max(t)
-            e = [dc.exptime*dc.nexp for dc in self.detconfig]
-            exposure_time = max(e)
-        else:
-            detector_time = self.detconfig.estimate_clock_time()
-            exposure_time = self.detconfig.exptime
-
-        return {'shutter open time': exposure_time,
-                'wall clock time': detector_time}
 
     def __str__(self):
         return f'{self.name}'

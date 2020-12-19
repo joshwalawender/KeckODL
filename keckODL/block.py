@@ -22,10 +22,13 @@ class ObservingBlock():
     
     Can be thought of as one line in a table of actions.
     '''
-    def __init__(self, target=None, pattern=None, instconfig=None):
+    def __init__(self, target=None, pattern=None, instconfig=None,
+                 detconfig=None):
         self.target = target
         self.pattern = pattern
         self.instconfig = instconfig
+        self.detconfig = detconfig if type(detconfig) in [list, tuple]\
+                         else [detconfig]
 
 
     def validate(self):
@@ -35,11 +38,18 @@ class ObservingBlock():
     def estimate_time(self):
         '''Estimate the wall clock time to complete this block.
         '''
-        inst_time = self.instconfig.estimate_time()
+        if type(self.detconfig) in [list, tuple]:
+            t = [dc.estimate_clock_time() for dc in self.detconfig]
+            detector_time = max(t)
+            e = [dc.exptime*dc.nexp for dc in self.detconfig]
+            exposure_time = max(e)
+        else:
+            detector_time = self.detconfig.estimate_clock_time()
+            exposure_time = self.detconfig.exptime
         return {'shutter open time': self.pattern.repeat * len(self.pattern) *\
-                                     inst_time['shutter open time'],
+                                     exposure_time,
                 'wall clock time': self.pattern.repeat * len(self.pattern) *\
-                                   inst_time['wall clock time']}
+                                   detector_time}
 
 
     def cals(self):
@@ -49,13 +59,13 @@ class ObservingBlock():
     def __str__(self):
         return (f'{str(self.target):15s}|{str(self.pattern):22s}|'
                 f'{str(self.instconfig):45s}|'
-                f'{str(self.instconfig.detconfig):36s}')
+                f'{str(self.detconfig):36s}')
 
 
     def __repr__(self):
         return (f'{str(self.target):15s}|{str(self.pattern):22s}|'
                 f'{str(self.instconfig):45s}|'
-                f'{str(self.instconfig.detconfig):36s}')
+                f'{str(self.detconfig):36s}')
 
 
 ##-------------------------------------------------------------------------

@@ -18,6 +18,12 @@ from .target import Target, DomeFlats
 
 
 ##-------------------------------------------------------------------------
+## Constants for the Instrument
+##-------------------------------------------------------------------------
+exptime_for_domeflats = {'Y': 17, 'J': 11, 'H': 11, 'K': 11}
+
+
+##-------------------------------------------------------------------------
 ## MOSFIRE Frames
 ##-------------------------------------------------------------------------
 detector = InstrumentFrame(name='MOSFIRE Detector',
@@ -65,9 +71,9 @@ class MOSFIREDetectorConfig(IRDetectorConfig):
 class MOSFIREConfig(InstrumentConfig):
     '''An object to hold information about MOSFIRE configuration.
     '''
-    def __init__(self, detconfig=None, mode='spectroscopy', filter='Y',
+    def __init__(self, mode='spectroscopy', filter='Y',
                  mask='longslit_46x0.7'):
-        super().__init__(detconfig=detconfig)
+        super().__init__()
         self.mode = mode
         self.filter = filter
         self.mask = mask
@@ -105,43 +111,44 @@ class MOSFIREConfig(InstrumentConfig):
     def arcs(self, lampname):
         '''
         '''
-        arcs = deepcopy(self)
-        arcs.detconfig = MOSFIREDetectorConfig(exptime=1, readoutmode='CDS')
-        arcs.arclamp = lampname
-        arcs.name += f' arclamp={arcs.arclamp}'
+        ic_for_arcs = deepcopy(self)
+        ic_for_arcs.arclamp = lampname
+        ic_for_arcs.name += f' arclamp={ic_for_arcs.arclamp}'
+        dc_for_arcs = MOSFIREDetectorConfig(exptime=1, readoutmode='CDS')
+        arcs = ObservingBlock(target=None,
+                              pattern=Stare(repeat=2),
+                              instconfig=ic_for_arcs,
+                              detconfig=dc_for_arcs,
+                             )
         return arcs
 
 
     def domeflats(self, off=False):
         '''
         '''
-        domeflats = deepcopy(self)
-        exptime = {'Y': 17, 'J': 11, 'H': 11, 'K': 11}[self.filter]
-        domeflats.detconfig = MOSFIREDetectorConfig(exptime=exptime,
-                                                    readoutmode='CDS')
-        domeflats.domeflatlamp = not off
+        ic_for_domeflats = deepcopy(self)
+        ic_for_domeflats.domeflatlamp = not off
         lamp_str = {False: 'on', True: 'off'}[off]
-        domeflats.name += f' domelamp={lamp_str}'
+        ic_for_domeflats.name += f' domelamp={lamp_str}'
+        exptime = exptime_for_domeflats[self.filter]
+        dc_for_domeflats = MOSFIREDetectorConfig(exptime=exptime,
+                                                 readoutmode='CDS')
+        domeflats = ObservingBlock(target=DomeFlats(),
+                                   pattern=Stare(repeat=7),
+                                   instconfig=ic_for_domeflats,
+                                   detconfig=dc_for_domeflats,
+                                   )
         return domeflats
 
 
     def cals(self):
         '''
         '''
-        cals = ObservingBlockList()
-        cals.append(ObservingBlock(target=DomeFlats(),
-                                   pattern=Stare(repeat=7),
-                                   instconfig=self.domeflats()))
+        cals = ObservingBlockList([self.domeflats()])
         if self.filter == 'K':
-            cals.append(ObservingBlock(target=DomeFlats(),
-                                       pattern=Stare(repeat=7),
-                                       instconfig=self.domeflats(off=True)))
-            cals.append(ObservingBlock(target=None,
-                                       pattern=Stare(repeat=2),
-                                       instconfig=self.arcs('Ne')))
-            cals.append(ObservingBlock(target=None,
-                                       pattern=Stare(repeat=2),
-                                       instconfig=self.arcs('Ar')))
+            cals.append(self.domeflats(off=True))
+            cals.append(self.arcs('Ne'))
+            cals.append(self.arcs('Ar'))
         return cals
 
 

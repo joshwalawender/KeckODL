@@ -88,27 +88,24 @@ def parse_yaml(contents):
                 ops.append(OffsetPattern(offset_list,
                                          name=op.get('name', ''),
                                          repeat=op.get('repeat', 1)))
-        # Read InstrumentConfigs
-        if 'InstrumentConfigs' in entry.keys():
-            for ic in entry['InstrumentConfigs']:
-                ics.append( parse_instrumentconfig(ic) )
-
-
 
         # Read DetectorConfigs
         if 'DetectorConfigs' in entry.keys():
-            for dc in entry['DetectorConfigs']:
-                dcs.append(DetectorConfig())
+            for dc_dict in entry['DetectorConfigs']:
+                instname = dc_dict.pop('instrument')
+                detectorname = dc_dict.pop('detector')
+                dc = getattr(importlib.import_module(f'keckODL.{instname.lower()}'),
+                             f'{instname}{detectorname}DetectorConfig')(**dc_dict)
+                dcs.append(dc)
 
-    return tl, ops, ics, dcs
+        # Read InstrumentConfigs
+        if 'InstrumentConfigs' in entry.keys():
+            for ic_dict in entry['InstrumentConfigs']:
+                instname = ic_dict.pop('instrument')
+                ic = getattr(importlib.import_module(f'keckODL.{instname.lower()}'),
+                             f'{instname}Config')(**ic_dict)
+                ics.append(ic)
 
+    return tl, ops, dcs, ics
 
-def parse_detector_config(dc_dict):
-    
-
-
-def parse_instrumentconfig(ic):
-    instname = ic.get('instrument')
-    importlib.import_module(f'{instname.lower()}')
-    confobj = getattr(f'{instname}Config', f'{instname.lower()}')()
 
