@@ -18,6 +18,7 @@ acquisition_modes = ['guider: bright',
                      'guider: faint',
                      'guider: offset',
                      'mask align',
+                     'mask align + offset',
                      'blind',
                      'none']
 object_types = ['science',

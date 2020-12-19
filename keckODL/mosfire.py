@@ -68,7 +68,6 @@ class MOSFIREConfig(InstrumentConfig):
     def __init__(self, detconfig=None, mode='spectroscopy', filter='Y',
                  mask='longslit_46x0.7'):
         super().__init__(detconfig=detconfig)
-        self.instrument = 'MOSFIRE'
         self.mode = mode
         self.filter = filter
         self.mask = mask

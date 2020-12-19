@@ -101,7 +101,6 @@ class NIRESConfig(InstrumentConfig):
     '''
     def __init__(self, detconfig=None):
         super().__init__(detconfig=detconfig)
-        self.instrument = 'NIRES'
         self.name = 'NIRES Instrument Config'
 
     ##-------------------------------------------------------------------------

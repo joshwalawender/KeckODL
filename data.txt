@@ -1,0 +1,156 @@
+- Targets:
+  - Dec: -5.123138480643963
+    DecOffset: -4.5
+    PA: 90
+    PMDec: -10
+    PMRA: 10
+    RA: 82.62364400988731
+    RAOffset: 8.4
+    acquisition: 'guider: offset'
+    comment: Star formation is cool
+    ddec: 0
+    dra: 0
+    epoch: 2020.9584702572834
+    equinox: 1999.9999085590325
+    frame: icrs
+    mag:
+      K: 6.7
+      V: 4.3
+    name: M42
+    objecttype: science
+    obstime: null
+    rotmode: PA
+    wrap: shortest
+  - Dec: 41.26875
+    DecOffset: -1.9
+    PA: 32
+    PMDec: 0
+    PMRA: 0
+    RA: 10.684708333333331
+    RAOffset: 12.1
+    acquisition: 'guider: offset'
+    comment: Galaxies are boring
+    ddec: 0
+    dra: 0
+    epoch: 2020.9584702577017
+    equinox: 1999.9999085590325
+    frame: icrs
+    mag:
+      K: 8.7
+      V: 2.3
+    name: M31
+    objecttype: science
+    obstime: null
+    rotmode: PA
+    wrap: north
+  - Dec: 31.3688
+    DecOffset: null
+    PA: 22.5
+    PMDec: 0
+    PMRA: 0
+    RA: 52.2873
+    RAOffset: null
+    acquisition: blind
+    comment: Low mass star formation is the coolest
+    ddec: 0
+    dra: 0
+    epoch: 2020.9584702580244
+    equinox: 1999.9999085590325
+    frame: icrs
+    mag: {}
+    name: NGC1333
+    objecttype: science
+    obstime: null
+    rotmode: PA
+    wrap: null
+  - Dec: -5.1656028563457
+    DecOffset: null
+    PA: 0
+    PMDec: 0
+    PMRA: 0
+    RA: 349.9933312710857
+    RAOffset: null
+    acquisition: 'guider: bright'
+    comment: I guess we need a standard
+    ddec: 0
+    dra: 0
+    epoch: 2020.9584702582335
+    equinox: 1999.9999085590325
+    frame: icrs
+    mag: {}
+    name: Feige110
+    objecttype: flux standard
+    obstime: null
+    rotmode: vertical
+    wrap: null
+- OffsetPatterns:
+  - name: mypattern x1
+    offsets:
+    - dr: 0.0
+      dx: 0.0
+      dy: 0.0
+      frame: SkyFrame
+      guide: true
+      posname: star
+      relative: false
+    - dr: 0.0
+      dx: 60.0
+      dy: 0.0
+      frame: SkyFrame
+      guide: false
+      posname: sky
+      relative: false
+    - dr: 0.0
+      dx: 0.0
+      dy: 0.0
+      frame: SkyFrame
+      guide: true
+      posname: star
+      relative: false
+    repeat: 1
+- DetectorConfigs:
+  - ampmode: 9
+    binning: 2x2
+    dark: false
+    detector: blue
+    exptime: 1800
+    instrument: KCWI
+    name: KCWI 1800s x1
+    nexp: 1
+    readoutmode: 0
+    window: null
+- DetectorConfigs:
+  - ampmode: 9
+    binning: 2x2
+    dark: false
+    detector: red
+    exptime: 900
+    instrument: KCWI
+    name: KCWI 900s x2
+    nexp: 2
+    readoutmode: 0
+    window: null
+- InstrumentConfigs:
+  - arclamp: null
+    bluecwave: 4800
+    bluefilter: KBlue
+    bluefocus: null
+    bluegrating: BH3
+    bluenandsmask: false
+    bluepwave: 4500
+    calmirror: Sky
+    calobj: Dark
+    detconfig:
+    - KCWIblue 1800s x1
+    - KCWIred 926s x2
+    domeflatlamp: null
+    instrument: KCWIblue
+    name: medium BH3 4800 A
+    polarizer: Sky
+    redcwave: 6563
+    redfilter: KRed
+    redfocus: null
+    redgrating: RH3
+    rednandsmask: false
+    redpwave: 6263
+    slicer: medium

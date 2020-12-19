@@ -39,9 +39,11 @@ class DetectorConfig():
     to_YAML
     write
     '''
-    def __init__(self, instrument='GenericDetector', exptime=None,
-                 nexp=1, readoutmode=None):
+    def __init__(self, instrument=None, detector='', exptime=None,
+                 nexp=1, readoutmode=None, name=None):
+        self.name = name
         self.instrument = instrument
+        self.detector = detector
         self.name = 'GenericDetectorConfig'
         self.exptime = exptime
         self.nexp = nexp
@@ -55,6 +57,7 @@ class DetectorConfig():
     def to_dict(self):
         return {'DetectorConfigs': [{'name': self.name,
                                      'instrument': self.instrument,
+                                     'detector': self.detector,
                                      'exptime': self.exptime,
                                      'nexp': self.nexp,
                                      'readoutmode': self.readoutmode}]}
@@ -99,12 +102,15 @@ class IRDetectorConfig(DetectorConfig):
     coadds : int
         The number of coadds (if applicable)
     '''
-    def __init__(self, instrument='GenericIR', exptime=None, nexp=1,
-                 readoutmode='CDS', coadds=1):
-        super().__init__(instrument=instrument, exptime=exptime, nexp=nexp,
-                         readoutmode=readoutmode)
+    def __init__(self, name=None, instrument='GenericIR', detector='',
+                 exptime=None, nexp=1, readoutmode='CDS', coadds=1):
+        super().__init__(name=name, instrument=instrument, detector=detector,
+                         exptime=exptime, nexp=nexp, readoutmode=readoutmode)
         self.coadds = coadds
-        self.set_name()
+        if name is None:
+            self.set_name()
+        else:
+            self.name = name
 
 
     def set_name(self):
@@ -142,16 +148,19 @@ class VisibleDetectorConfig(DetectorConfig):
     window : str
         The window, parsed as x1:x2,y1:y2
     '''
-    def __init__(self, instrument='GenericVis', exptime=None, nexp=1,
-                 readoutmode=None, ampmode=None, dark=False, binning='1x1',
-                 window=None):
-        super().__init__(instrument=instrument, exptime=exptime, nexp=nexp,
-                         readoutmode=readoutmode)
+    def __init__(self, name=None, instrument='GenericVis', detector='',
+                 exptime=None, nexp=1, readoutmode=None, ampmode=None,
+                 dark=False, binning='1x1', window=None):
+        super().__init__(name=name, instrument=instrument, detector=detector,
+                         exptime=exptime, nexp=nexp, readoutmode=readoutmode)
         self.ampmode = ampmode
         self.dark = dark
         self.binning = binning
         self.window = window
-        self.set_name()
+        if name is None:
+            self.set_name()
+        else:
+            self.name = name
 
 
     def set_name(self):

@@ -1,6 +1,8 @@
+import importlib
 import requests
 import yaml
 from warnings import warn
+import importlib
 from astropy import units as u
 
 from .target import Target, TargetList
@@ -70,31 +72,43 @@ def parse_yaml(contents):
                                  epoch=td.get('epoch', None),
                                  obstime=td.get('obstime', None),
                                  mag=td.get('mag', {}),
-                                 comment=td.get('comment', None),)\
-                                 )
+                                 comment=td.get('comment', None) ) )
         # Read OffsetPatterns
         if 'OffsetPatterns' in entry.keys():
             for op in entry['OffsetPatterns']:
-                offsets = [TelescopeOffset(dx=o.get('dx', 0*u.arcsec),
-                                           dy=o.get('dy', 0*u.arcsec),
-                                           dr=o.get('dr', 0*u.arcsec),
-                                           relative=o.get('relative', False),
-                                           frame=getattr(offset,
-                                                         o.get('frame', 'SkyFrame'))(),
-                                           posname=o.get('posname', ''),
-                                           guide=o.get('guide', True))
-                                           for o in op['offsets']]
-                ops.append(OffsetPattern(offsets,
-                           name=op.get('name', ''),
-                           repeat=op.get('repeat', 1)))
+                offset_list = [TelescopeOffset(dx=o.get('dx', 0*u.arcsec),
+                                               dy=o.get('dy', 0*u.arcsec),
+                                               dr=o.get('dr', 0*u.arcsec),
+                                               relative=o.get('relative', False),
+                                               frame=getattr(offset,
+                                                             o.get('frame', 'SkyFrame'))(),
+                                               posname=o.get('posname', ''),
+                                               guide=o.get('guide', True))
+                                               for o in op['offsets']]
+                ops.append(OffsetPattern(offset_list,
+                                         name=op.get('name', ''),
+                                         repeat=op.get('repeat', 1)))
         # Read InstrumentConfigs
         if 'InstrumentConfigs' in entry.keys():
             for ic in entry['InstrumentConfigs']:
-                ics.append(InstrumentConfig())
+                ics.append( parse_instrumentconfig(ic) )
+
+
+
         # Read DetectorConfigs
         if 'DetectorConfigs' in entry.keys():
-            for ic in entry['DetectorConfigs']:
-                ics.append(DetectorConfig())
+            for dc in entry['DetectorConfigs']:
+                dcs.append(DetectorConfig())
 
     return tl, ops, ics, dcs
+
+
+def parse_detector_config(dc_dict):
+    
+
+
+def parse_instrumentconfig(ic):
+    instname = ic.get('instrument')
+    importlib.import_module(f'{instname.lower()}')
+    confobj = getattr(f'{instname}Config', f'{instname.lower()}')()
 

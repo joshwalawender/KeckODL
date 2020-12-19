@@ -301,7 +301,51 @@ def Stare(repeat=1):
     return OffsetPattern([offset1], name='Stare', repeat=repeat)
 
 
-def StarSkyStar(dx=0, dy=0, repeat=1):
+def StarSky(dx=10*u.arcsec, dy=10*u.arcsec, repeat=1):
+    if type(dx) in [float, int]:
+        if abs(dx) > 1e-6:
+            warn('No offset unit given for dx, assuming arcseconds',
+                          category=OffsetWarning)
+        dx *= u.arcsec
+    if type(dy) in [float, int]:
+        if abs(dy) > 1e-6:
+            warn('No offset unit given for dy, assuming arcseconds',
+                          category=OffsetWarning)
+        dy *= u.arcsec
+    dx = dx.to(u.arcsec)
+    dy = dy.to(u.arcsec)
+
+    o1 = TelescopeOffset(dx=0, dy=0, posname='star',
+                         frame=SkyFrame(), guide=True)
+    o2 = TelescopeOffset(dx=dx, dy=dy, posname='sky',
+                         frame=SkyFrame(), guide=False)
+    return OffsetPattern([o1, o2], repeat=repeat,
+                         name=f'StarSky ({dx.value:.0f} {dy.value:.0f})')
+
+
+def SkyStar(dx=10*u.arcsec, dy=10*u.arcsec, repeat=1):
+    if type(dx) in [float, int]:
+        if abs(dx) > 1e-6:
+            warn('No offset unit given for dx, assuming arcseconds',
+                          category=OffsetWarning)
+        dx *= u.arcsec
+    if type(dy) in [float, int]:
+        if abs(dy) > 1e-6:
+            warn('No offset unit given for dy, assuming arcseconds',
+                          category=OffsetWarning)
+        dy *= u.arcsec
+    dx = dx.to(u.arcsec)
+    dy = dy.to(u.arcsec)
+
+    o1 = TelescopeOffset(dx=0, dy=0, posname='star',
+                         frame=SkyFrame(), guide=True)
+    o2 = TelescopeOffset(dx=dx, dy=dy, posname='sky',
+                         frame=SkyFrame(), guide=False)
+    return OffsetPattern([o2, o1], repeat=repeat,
+                         name=f'SkyStar ({dx.value:.0f} {dy.value:.0f})')
+
+
+def StarSkyStar(dx=10*u.arcsec, dy=10*u.arcsec, repeat=1):
     if type(dx) in [float, int]:
         if abs(dx) > 1e-6:
             warn('No offset unit given for dx, assuming arcseconds',

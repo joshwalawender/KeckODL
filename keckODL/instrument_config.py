@@ -20,8 +20,14 @@ class InstrumentConfig():
     '''
     def __init__(self, name='GenericInstrumentConfig', detconfig=None):
         self.name = name
-        self.instrument = 'unknown'
-        self.detconfig = detconfig if type(detconfig) is list else [detconfig]
+        # Determine instrument from class name.  This is needed so the class
+        # name and the instrument property have a predictable relationship
+        namesearch = re.search("<class 'keckODL.(\w+).(\w+)Config'>",
+                               str(k.__class__))
+        self.package = namesearch.group(1)
+        self.instrument = namesearch.group(2)
+
+        self.detconfig = detconfig if type(detconfig) in [list, tuple] else [detconfig]
 
 
     def validate(self):

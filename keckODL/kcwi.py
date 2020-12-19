@@ -43,11 +43,12 @@ class KCWIblueDetectorConfig(VisibleDetectorConfig):
 
     For ampmode
     '''
-    def __init__(self, exptime=None, nexp=1, readoutmode=0, ampmode=9,
-                 dark=False, binning='1x1', window=None, gain=10):
-        super().__init__(instrument='KCWIblue', exptime=exptime, nexp=nexp,
-                         readoutmode=readoutmode, ampmode=ampmode, dark=dark,
-                         binning=binning, window=window)
+    def __init__(self, name=None, exptime=None, nexp=1, readoutmode=0,
+                 ampmode=9, dark=False, binning='1x1', window=None, gain=10):
+        super().__init__(name=name, instrument='KCWI', detector='blue', 
+                         exptime=exptime, nexp=nexp, readoutmode=readoutmode,
+                         ampmode=ampmode, dark=dark, binning=binning,
+                         window=window)
         self.gain = gain
 
 
@@ -110,11 +111,12 @@ class KCWIredDetectorConfig(VisibleDetectorConfig):
     
     readoutmode corresponds to the KCWI config keyword ccdmoder
     '''
-    def __init__(self, exptime=None, nexp=1, readoutmode=1, ampmode=9,
-                 dark=False, binning='1x1', window=None, gain=10):
-        super().__init__(instrument='KCWIred', exptime=exptime, nexp=nexp,
-                         readoutmode=readoutmode, ampmode=ampmode, dark=dark,
-                         binning=binning, window=window)
+    def __init__(self, name=None, exptime=None, nexp=1, readoutmode=0,
+                 ampmode=9, dark=False, binning='1x1', window=None, gain=10):
+        super().__init__(name=name, instrument='KCWI', detector='red', 
+                         exptime=exptime, nexp=nexp, readoutmode=readoutmode,
+                         ampmode=ampmode, dark=dark, binning=binning,
+                         window=window)
         self.gain = gain
 
 
@@ -143,7 +145,7 @@ class KCWIredDetectorConfig(VisibleDetectorConfig):
 class KCWIConfig(InstrumentConfig):
     '''An object to hold information about KCWI Blue+Red configuration.
     '''
-    def __init__(self, detconfig=None, slicer='medium', 
+    def __init__(self, name=None, detconfig=None, slicer='medium', 
                  bluegrating='BH3', bluefilter='KBlue',
                  bluecwave=4800, bluepwave=None,
                  bluenandsmask=False, bluefocus=None,
@@ -152,8 +154,7 @@ class KCWIConfig(InstrumentConfig):
                  rednandsmask=False, redfocus=None,
                  calmirror='Sky', calobj='Dark', arclamp=None,
                  domeflatlamp=None, polarizer='Sky'):
-        super().__init__()
-        self.instrument = 'KCWIblue'
+        super().__init__(name=name, detconfig=detconfig)
         self.slicer = slicer
         self.polarizer = polarizer
 
@@ -221,6 +222,11 @@ class KCWIConfig(InstrumentConfig):
         output['InstrumentConfigs'][0]['domeflatlamp'] = self.domeflatlamp
         
         return output
+
+
+    def from_dict(self, input):
+        pass
+        return self
 
 
     def contbars(self):
