@@ -18,14 +18,62 @@ db_upload_url = 'http://vm-webtools.keck.hawaii.edu:59999/'
 class UploadFailed(UserWarning): pass
 
 
+def check_ping(wait=2):
+    '''This can be removed once the DB is available outside of keck.  It is
+    here just to prevent failures when testing.
+    '''
+    import subprocess
+    import platform
+    import os
+    try:
+        ping = subprocess.check_output(['which', 'ping'])
+        ping = ping.decode()
+        ping_cmd = [ping.strip()]
+    except subprocess.CalledProcessError as e:
+        warn("Ping command not available")
+        ping_cmd = None
+        return None
+    os = platform.system()
+    os = os.lower()
+    # Ping once, wait up to 2 seconds for a response.
+    if os == 'linux':
+        ping_cmd.extend(['-c', '1', '-w', 'wait'])
+    elif os == 'darwin':
+        ping_cmd.extend(['-c', '1', '-W', 'wait000'])
+    else:
+        # Don't understand how ping works on this platform.
+        ping_cmd = None
+        return None
+
+    address = 'vm-webtools.keck.hawaii.edu'
+    ping_cmd = [x.replace('wait', f'{int(wait)}') for x in ping_cmd]
+    ping_cmd.append(address)
+    output = subprocess.run(ping_cmd,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
+    if output.returncode != 0:
+#         print("Ping command failed")
+#         print(f"STDOUT: {output.stdout.decode()}")
+#         print(f"STDERR: {output.stderr.decode()}")
+        return False
+    else:
+#         print("Ping command succeeded")
+#         print(f"STDOUT: {output.stdout.decode()}")
+#         print(f"STDERR: {output.stderr.decode()}")
+        return True
+
+
 ##-------------------------------------------------------------------------
 ## upload_to_DB
 ##-------------------------------------------------------------------------
 def upload_to_DB(input_list):
     '''Upload objects to the database at Keck
     '''
-    output = []
+    if check_ping() in [False, None]:
+        print('Unable to connect to Keck DB')
+        return None
 
+    output = []
     if type(input_list) in [TargetList, Target, OffsetPattern]:
         output.append(input_list.to_dict())
     elif type(input_list) is list:
