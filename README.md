@@ -51,7 +51,7 @@ An offset pattern primarily consists of a number of repeats and a list of indivi
 Several patterns are built in to the ODL as examples and for use:
 - `Stare`: This is a simple pattern with no moves.  It would be used for observations where no dithering is desired or for calibrations.
 - `StarSky`: A simple two point pattern which starts at the target of interest (the "star" position), the offsets to another position to sample the sky background (the "sky" position).
-- `SkyStar`: Identical to the above `StarSky` pattern except that ot begins at the "sky" position.
+- `SkyStar`: Identical to the above `StarSky` pattern except that it begins at the "sky" position.
 - `StarSkyStar`: Similar to the above two patters except it contains two "star" positions for each "sky" position yielding a greater fraction of time on target.
 
 Many standard spectroscopic patterns which would be used to dither along a slit such as ABBA, ABB'A', mask nod, etc. are not part of the ODL, but are unique to each instrument because they must be aware of the instrument's slit based reference frame in order to make their telescope moves.
