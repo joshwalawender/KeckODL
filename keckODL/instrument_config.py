@@ -23,7 +23,7 @@ class InstrumentConfig():
         self.name = name
         # Determine instrument from class name.  This is needed so the class
         # name and the instrument property have a predictable relationship
-        namesearch = re.search("<class 'keckODL.(\w+).(\w+)Config'>",
+        namesearch = re.search("<class 'keckODL.(\w+).config.(\w+)Config'>",
                                str(self.__class__))
         self.package = namesearch.group(1)
         self.instrument = namesearch.group(2)
