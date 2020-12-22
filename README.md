@@ -73,9 +73,24 @@ These two frames are implemented at the keyword level.  The object specifies whi
 
 ## Instrument Configuration
 
+The `keckODL.instrument_config.InstrumentConfig` is an object to hold information describing the instrument.  It is intended to be subclassed for each instrument at Keck.
 
+An instrument's control system should be able to take an instance of this object and then configure the instrument appropriately.  This has intellectual heritage with the `save_state` and `restore_state` scripts used on some existing Keck instruments.
 
 ## Detector Configuration
 
+The `keckODL.detector_config.DetectorConfig` is an object to hold information describing a particular detector's configuration.  Similar to the `InstrumentConfig` above it has some conceptual heritage from the `save_state` and `restore_state` scripts.
 
+The `DetectorConfig` object is abstract and is sub-classed in to two additional classes: `IRDetectorConfig` and `VisibleDetectorConfig`.  Each of those is expected to be subclassed for a particular instrument's detector.
 
+The high level `DetectorConfig` class contains only a few basic concepts such as exposure time, readoutmode (which is interpreted differently by different instruments), and number of exposures.
+
+The number of exposures property is how one would configure an Observing Block to take multiple exposures at each point in a dither pattern before moving on to the next position in the pattern.
+
+#### IRDetectorConfig
+
+The `IRDetectorConfig` sub-class adds the additional property of coadds which is common to IR detectors.
+
+#### VisibleDetectorConfig
+
+The `VisibleDetectorConfig` sub-class adds additional properties common to CCD detectors such as binning, windowing, ampmode, and dark.

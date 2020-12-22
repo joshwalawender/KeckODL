@@ -31,13 +31,6 @@ class DetectorConfig():
     
     nexp : int
         The number of exposures.
-    
-    Methods
-    -------
-    validate
-    to_dict
-    to_YAML
-    write
     '''
     def __init__(self, instrument=None, detector='', exptime=None,
                  nexp=1, readoutmode=None, name=None):

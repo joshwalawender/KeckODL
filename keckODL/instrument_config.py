@@ -17,7 +17,22 @@ class InstrumentConfigWarning(UserWarning): pass
 ## InstrumentConfig
 ##-------------------------------------------------------------------------
 class InstrumentConfig():
-    '''An object to hold information about an instrument configuration.
+    '''An object to hold information about an instrument configuration.  This
+    is an abstract class which is intended to be subclassed for each instrument.
+
+    Attributes
+    ----------
+    name : string
+        A string with a human readable name for this configuration.
+
+    Note that some features of the reader for this class require a particular
+    naming convention for the implementation of the sub-class.  The sub-class
+    should be in a package `keckODL.[instrument]` where `[instrument]` is the
+    name of the instrument in lower case.  In addition, the name of the
+    sub-class itself must be of the form `[Instrument]Config` where
+    `[Instrument]` is the name of the instrument (in the instrument's chosen
+    case).  For example: `keckODL.kcwi.KCWIConfig` or
+    `keckODL.mosfire.MOSFIREConfig`.
     '''
     def __init__(self, name='GenericInstrumentConfig'):
         self.name = name
