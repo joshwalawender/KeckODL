@@ -75,8 +75,8 @@ class SkyFrame(OffsetFrame):
 class InstrumentFrame(OffsetFrame):
     '''An InstrumentFrame is an offset frame which takes place in instrument
     coordinates as determined by the INSTXOFF, INSTYOFF, and INSTANGL DCS
-    keywords.  This class is intended to be subclassed to make it specific
-    to each instrument focal plane.
+    keywords.  Instantiate this class with a scale and offset angle to make it
+    specific to a particular instrument's focal plane.
 
     Attributes
     ----------
@@ -241,7 +241,16 @@ class TelescopeOffset():
 ##-------------------------------------------------------------------------
 class OffsetPattern(UserList):
     '''Describes a telescope offset for the purposes of including it in an
-    observing block.
+    observing block.  The object contains a list of `TelescopeOffset`s and two
+    additional properties: name and repeat.
+    
+    Attributes
+    ----------
+    name : str
+        A human readable name for the pattern.
+    
+    repeat : int
+        The number of times to repeat this pattern.
     '''
     def __init__(self, *args, name='', repeat=1):
         super().__init__(*args)
@@ -328,11 +337,27 @@ class OffsetPattern(UserList):
 ## Pre-Defined Patterns
 ##-------------------------------------------------------------------------
 def Stare(repeat=1):
+    '''Return a simple Stare pattern with the specified number of repeats.
+
+    Attributes
+    ----------
+    repeat : int
+        The number of times to repeat this pattern.
+    '''
     offset1 = TelescopeOffset(dx=0, dy=0, posname='base', frame=SkyFrame())
     return OffsetPattern([offset1], name='Stare', repeat=repeat)
 
 
 def StarSky(dx=10*u.arcsec, dy=10*u.arcsec, repeat=1):
+    '''Return a two point pattern where the first point is at offset 0,0 and is
+    named "star" and the second point is at the specified dx, dy offsets and is
+    named "sky".
+
+    Attributes
+    ----------
+    repeat : int
+        The number of times to repeat this pattern.
+    '''
     if type(dx) in [float, int]:
         if abs(dx) > 1e-6:
             warn('No offset unit given for dx, assuming arcseconds',
@@ -355,6 +380,15 @@ def StarSky(dx=10*u.arcsec, dy=10*u.arcsec, repeat=1):
 
 
 def SkyStar(dx=10*u.arcsec, dy=10*u.arcsec, repeat=1):
+    '''Return a two point pattern where the first point is at the specified 
+    dx, dy offsets and is named "sky" and the second point is at offset 0,0 and
+    is named "star".
+
+    Attributes
+    ----------
+    repeat : int
+        The number of times to repeat this pattern.
+    '''
     if type(dx) in [float, int]:
         if abs(dx) > 1e-6:
             warn('No offset unit given for dx, assuming arcseconds',
@@ -377,6 +411,16 @@ def SkyStar(dx=10*u.arcsec, dy=10*u.arcsec, repeat=1):
 
 
 def StarSkyStar(dx=10*u.arcsec, dy=10*u.arcsec, repeat=1):
+    '''Return a three point pattern where the first point is at offset 0,0 and
+    is named "star" and the second point is at the specified dx, dy offsets and
+    is named "sky" and the third point is again at offset 0,0 and is named
+    "star".
+
+    Attributes
+    ----------
+    repeat : int
+        The number of times to repeat this pattern.
+    '''
     if type(dx) in [float, int]:
         if abs(dx) > 1e-6:
             warn('No offset unit given for dx, assuming arcseconds',

@@ -23,7 +23,7 @@ An Observing Block is comprised of
 - 1 Instrument Configuration
 - 1 or more Detector Configurations
 
-These components are described individually below.
+These components and their sub-components are described below.
 
 
 ## Target
@@ -44,7 +44,7 @@ New Features (compared to a Keck Starlist):
 
 ## Offset Pattern
 
-An Offset Pattern describes a series of small telescope moves which are used during the observation of a single target.  Classical examples of these would be a dither pattern used in imaging (e.g. box5) or an offset pattern used for spectroscopy (e.g. ABBA).  Since this sequence of small moves would be done on a single target, this is one component of an Observing Block.
+A `keckODL.offset.OffsetPattern` describes a series of small telescope moves which are used during the observation of a single target.  Classical examples of these would be a dither pattern used in imaging (e.g. box5) or an offset pattern used for spectroscopy (e.g. ABBA).  Since this sequence of small moves would be done on a single target, this is one component of an Observing Block.
 
 An offset pattern primarily consists of a number of repeats and a list of individual offsets.  It is assumed that one or more exposures is obtained at each position in the pattern as specified by the Detector Configuration used.
 
@@ -64,9 +64,9 @@ be guided at that position.  See the docstring for `keckODL.offset.TelescopeOffs
 
 #### Frame
 
-Each offset must be done in a particular coordinate frame.  The ODL contains an abstract `OffsetFrame` which is subclassed in to either a `SkyFrame` or an `InstrumentFrame` (others are also possible, but not yet implemented).
+Each offset must be done in a particular coordinate frame.  The ODL contains an abstract `keckODL.offset.OffsetFrame` which is subclassed in to either a `keckODL.offset.SkyFrame` or a `keckODL.offset.InstrumentFrame` (others are also possible, but not yet implemented).
 
-Offsetting using a `SkyFrame` would offset in sky coordinates (in cardinal directions).  Offsetting using an `InstrumentFrame` would offset in detector coordinates (in the directions of pixel rows or columns) or could be used to offset along a slit (which may or may not be along detector rows or columns).
+Offsetting using a `SkyFrame` would offset in sky coordinates (in cardinal directions).  Offsetting using an `InstrumentFrame` would offset in detector coordinates (in the directions of pixel rows or columns) or could be used to offset along a slit (which may or may not be along detector rows or columns).  Instantiating a `SkyFrame` with a scale argument would allow it to be used to offset in units such as pixels or millimeters.
 
 These two frames are implemented at the keyword level.  The object specifies which keywords to use.  For example `RAOFF` & `DECOFF` are used for the `SkyFrame` and `INSTXOFF` & `INSTYOFF` for an `InstrumentFrame`.  An `InstrumentFrame` also contains a scale (arcseconds per pixel) so that either pixel or angular units can be used and it contains an angle (which could be used to describe the angle a slit makes to the detector pixels for example).
 
