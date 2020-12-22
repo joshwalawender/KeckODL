@@ -4,7 +4,7 @@ The Keck Observing Description Language (ODL) is used to describe an observation
 
 # Goals
 
-The ODL must be capable of encoding a complete set of instructions to run an observation without additional human decision making.  Human interaction may be needed dor some steps such as target acquisition (for example: aligning the target on the slit or mask alignment).
+The ODL must be capable of encoding a complete set of instructions to run an observation without additional human decision making.  Human interaction may be needed for steps such as target acquisition (for example: aligning the target on the slit or running mask alignment).
 
 For normal operations, users will not interact directly with this language: it will be produced by the Observing Definition Tool and stored in the Observing Database. From there, observations will be retrieved and sent to the observing tools. An exception to this model is the possibility of linking our observing infrastructure to large surveys or to TOMs: in this case, it is likely that those users will produce observing sequences directly in the required format and submit them to our database using an API.
 
@@ -13,7 +13,7 @@ For normal operations, users will not interact directly with this language: it w
 
 ## Observing Block
 
-An "Observing Block" (OB) fully describes a coherent observation of a target (if specified).  An observing night and its associated calibrations can be described by a series of Observing Blocks.
+An "Observing Block" (OB) fully describes a coherent observation of a target.  An observing night and its associated calibrations consists of a series of Observing Blocks.
 
 In its simplest form an Observing Block contains enough information so that the telescope operator and visiting scientist can execute an observation of a single target with minimal additional human input.
 
@@ -28,16 +28,16 @@ These components are described individually below.
 
 ## Target
 
-A Target describes all the attributes needed to point the telescope and track a particular in the sky.  
+A Target describes all the attributes needed to point the telescope and track a particular location in the sky.  
 
-See the doc string for the `keckODL.target.Target` object for al the properties.
+See the doc string for the `keckODL.target.Target` object for all the properties.
 
 #### Keck Starlists
 
 The `keckODL.target.Target` properties are strongly influenced by the [Keck starlist](https://www2.keck.hawaii.edu/realpublic/observing/starlist.html).  As a result, existing starlist files can be read in and ingested to create `keckODL.target.Target` objects though this new implementation contains a few features that did not exist for star lists
 
 New Features (compared to a Keck Starlist):
-- Handling of proper motions: a `keckODL.target.Target` can propagate a coordinate if given proper motions, and epoch, and a time to propgate to.
+- Handling of proper motions: a `keckODL.target.Target` can propagate a coordinate if given proper motions, an epoch, and a time to propgate to.
 - A `from_name` method: since the coordinate component of a `keckODL.target.Target` is an `astropy.coordinates.SkyCoord` object, the `from_name` method of that object is supported.
 - Due to the use of `astropy.coordinates.SkyCoord`, the `keckODL.target.Target` object can utilize the frames and detailed time concepts used there.
 
@@ -54,19 +54,13 @@ Several patterns are built in to the ODL as examples and for use:
 - `SkyStar`: Identical to the above `StarSky` pattern except that it begins at the "sky" position.
 - `StarSkyStar`: Similar to the above two patters except it contains two "star" positions for each "sky" position yielding a greater fraction of time on target.
 
-Many standard spectroscopic patterns which would be used to dither along a slit such as ABBA, ABB'A', mask nod, etc. are not part of the ODL, but are unique to each instrument because they must be aware of the instrument's slit based reference frame in order to make their telescope moves.
+Many standard spectroscopic patterns which would be used to dither along a slit such as ABBA, ABB'A', mask nod, etc. are not part of the generic ODL, but are unique to each instrument because they must be aware of the instrument's slit based reference frame in order to make their telescope moves.  Thus they are contained in the particular sub-package for that instrument.
 
 #### Telescope Offsets
 
-Each of the offsets in an Offset Pattern consistes of a Telescope Offset which consists of:
+Each of the offsets in an Offset Pattern consistes of a Telescope Offset which describes the amount of the mode to be made, the frame in which it should be made, whether the move is relative or absolute, and whether the telescope should
+be guided at that position.  See the docstring for `keckODL.offset.TelescopeOffset` for details.
 
-- `dx`: an offset (in arcseconds) in the X direction
-- `dy`: an offset (in arcseconds) in the Y direction
-- `dr`: an offset (in degrees) of rotation
-- `frame`: the frame in which the offset is made (see below)
-- `relative`: a boolean value indicating whether the offset is to be made relative to the current position or is an absolute offset (relative to the original target position).
-- `posname`: A name for the position
-- `guide`: a boolean value indicating whether to guide at that position
 
 #### Frame
 

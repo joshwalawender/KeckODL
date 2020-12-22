@@ -115,6 +115,37 @@ class InstrumentFrame(OffsetFrame):
 class TelescopeOffset():
     '''Describes a telescope offset for the purposes of including it in an
     OffsetPattern.
+
+    Attributes
+    ----------
+    dx : float or `u.Quantity`
+        The amount of the offset in the X direction.  If given as a
+        `u.Quantity`, it should be angular units convertible to arcseconds.  If
+        given as a float, units of arcseconds are assumed.
+
+    dy : float or `u.Quantity`
+        The amount of the offset in the Y direction.  If given as a
+        `u.Quantity`, it should be angular units convertible to arcseconds.  If
+        given as a float, units of arcseconds are assumed.
+
+    dr : float or `u.Quantity`
+        The amount of the offset in rotation.  If given as a `u.Quantity`, it
+        should be angular units convertible to degrees.  If given as a float,
+        units of degrees are assumed.
+
+    frame : a subclass of `OffsetFrame`
+        The frame in which the offset is made.
+
+    relative : boolean
+        A boolean value indicating whether the offset is to be made relative to
+        the current position or is an absolute offset (relative to the original
+        target position).
+
+    posname : string
+        A name for the position.
+
+    guide : boolean
+        A boolean value indicating whether to guide at that position.
     '''
     def __init__(self, dx=0, dy=0, dr=0, relative=False, frame=SkyFrame(),
                  posname='', guide=True):
