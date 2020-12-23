@@ -13,12 +13,13 @@ from . import offset
 
 
 db_upload_url = 'http://vm-webtools.keck.hawaii.edu:59999/'
+db_download_url = 'http://vm-devnginxsw/api/ddoi/getDefs?'
 
 
 class UploadFailed(UserWarning): pass
 
 
-def check_ping(wait=2):
+def check_ping(address='vm-webtools.keck.hawaii.edu', wait=2):
     '''This can be removed once the DB is available outside of keck.  It is
     here just to prevent failures when testing.
     '''
@@ -45,21 +46,14 @@ def check_ping(wait=2):
         ping_cmd = None
         return None
 
-    address = 'vm-webtools.keck.hawaii.edu'
     ping_cmd = [x.replace('wait', f'{int(wait)}') for x in ping_cmd]
     ping_cmd.append(address)
     output = subprocess.run(ping_cmd,
                             stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE)
     if output.returncode != 0:
-#         print("Ping command failed")
-#         print(f"STDOUT: {output.stdout.decode()}")
-#         print(f"STDERR: {output.stderr.decode()}")
         return False
     else:
-#         print("Ping command succeeded")
-#         print(f"STDOUT: {output.stdout.decode()}")
-#         print(f"STDERR: {output.stderr.decode()}")
         return True
 
 
@@ -88,6 +82,24 @@ def upload_to_DB(input_list):
     else:
         warn('Upload failed', category=UploadFailed)
         return False
+
+
+##-------------------------------------------------------------------------
+## download_from_DB
+##-------------------------------------------------------------------------
+def download_from_DB(col='Target', name=None):
+    if check_ping(address='vm-devnginxsw') in [False, None]:
+        print('Unable to connect to Keck DB')
+        return None
+    query_url = f'{db_download_url}col={col}'
+    if name is not None:
+        query_url += f'&name={name}'
+    r = requests.get(query_url)
+    if r.status_code != requests.codes.ok:
+        warn('Download failed', category=UploadFailed)
+        return None
+    contents = yaml.safe_load(r.text)
+    return parse_yaml([contents])
 
 
 ##-------------------------------------------------------------------------
