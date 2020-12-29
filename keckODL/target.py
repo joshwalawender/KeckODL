@@ -224,6 +224,7 @@ class Target():
             else:
                 self.equinox = equinox
 
+        self.location = c.EarthLocation.of_site('keck')
 #         self.validate()
 
 
@@ -324,6 +325,39 @@ class Target():
             return sc.apply_space_motion(new_obstime=obstime)
         else:
             return sc
+
+
+    def altaz(self):
+        '''Return the AltAz frame coordinate of the target.
+        '''
+        obstime = Time.now() if self.obstime is None else self.obstime
+        altazframe = c.AltAz(location=self.location, obstime=obstime)
+        return self.coord().transform_to(altazframe)
+
+
+    def alt(self):
+        '''Return the altitude of the target in degrees.
+        '''
+        return self.altaz().alt
+
+
+    def az(self):
+        '''Return the azimuth of the target in degrees.
+        '''
+        return self.altaz().az
+
+
+    def moon_separation(self):
+        '''Return the separation in degrees of the target from the Moon or
+        return None if the Moon is not above the horizon.
+        '''
+        obstime = Time.now() if self.obstime is None else self.obstime
+        moon = c.get_moon(obstime, location=self.location)
+        altazframe = c.AltAz(location=self.location, obstime=obstime)
+        moon_alt = ((moon.transform_to(altazframe).alt).to(u.degree)).value
+        if moon_alt < 0:
+            return None
+        return self.coord().separation(moon).to(u.degree)
 
 
     ##-------------------------------------------------------------------------
