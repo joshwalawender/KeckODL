@@ -1,6 +1,6 @@
 from astropy import units as u
 
-from ..offset import InstrumentFrame, TelescopeOffset, OffsetPattern
+from ..offset import InstrumentFrame, TelescopeOffset, OffsetPattern, pmfm
 
 from .config import MOSFIREConfig
 from .detector import MOSFIREDetectorConfig
@@ -38,4 +38,15 @@ def long2pos(guide=True, repeat=1):
     o4 = TelescopeOffset(dx=-45*u.arcsec, dy=+23*u.arcsec, posname="B",
                          guide=guide, frame=detector)
     return OffsetPattern([o1, o2, o3, o4], name=f'long2pos', repeat=repeat)
+
+
+##-------------------------------------------------------------------------
+## Standard Blocks
+##-------------------------------------------------------------------------
+def mira():
+    return ObservingBlock(target=None,
+                          pattern=Stare(),
+                          instconfig=MOSFIREConfig(slicer='FPC'),
+                          detconfig=MOSFIREDetectorConfig(exptime=2, coadds=5))
+
 

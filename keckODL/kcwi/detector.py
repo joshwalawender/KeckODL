@@ -117,3 +117,39 @@ class KCWIredDetectorConfig(VisibleDetectorConfig):
         pass
 
 
+##-------------------------------------------------------------------------
+## KCWIFPCDetectorConfig
+##-------------------------------------------------------------------------
+class KCWIFPCDetectorConfig(VisibleDetectorConfig):
+    '''An object to hold information about KCWI FPC detector configuration.
+    
+    readoutmode corresponds to the KCWI config keyword ccdmoder
+    '''
+    def __init__(self, name=None, exptime=None, nexp=1, readoutmode=0,
+                 ampmode=9, dark=False, binning='1x1', window=None, gain=10):
+        super().__init__(name=name, instrument='KCWI', detector='FPC', 
+                         exptime=exptime, nexp=nexp, readoutmode=readoutmode,
+                         ampmode=ampmode, dark=dark, binning=binning,
+                         window=window)
+        self.gain = gain
+
+
+    ##-------------------------------------------------------------------------
+    ## Validate
+    def validate(self):
+        '''Check values and verify that they meet assumptions.
+        
+        Check:
+        - exptime is in range 1-3600
+        - readoutmode is in range ??
+        - ampmode is in range ??
+        - dark is boolean
+        - binning is one of 1x1, 2x2
+        - gain is in range ??
+
+        Warn:
+        - Window is not used
+        '''
+        pass
+
+

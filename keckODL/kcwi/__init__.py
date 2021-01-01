@@ -1,9 +1,10 @@
 from astropy import units as u
 
-from ..offset import InstrumentFrame
+from ..offset import InstrumentFrame, pmfm
 
 from .config import KCWIConfig
-from .detector import KCWIblueDetectorConfig, KCWIredDetectorConfig
+from .detector import (KCWIblueDetectorConfig, KCWIredDetectorConfig,
+                       KCWIFPCDetectorConfig)
 
 
 ##-------------------------------------------------------------------------
@@ -18,3 +19,19 @@ mediumslicer = InstrumentFrame(name='MediumSlicer',
 largeslicer = InstrumentFrame(name='LargeSlicer',
                               scale=1.35*u.arcsec/u.pixel)
 
+
+##-------------------------------------------------------------------------
+## Standard Blocks
+##-------------------------------------------------------------------------
+def mira():
+    return ObservingBlock(target=None,
+                          pattern=pmfm(),
+                          instconfig=KCWIConfig(slicer='FPC'),
+                          detconfig=KCWIFPCDetectorConfig(exptime=5))
+
+
+def autofoc():
+    return ObservingBlock(target=None,
+                          pattern=None,
+                          instconfig=None,
+                          detconfig=None)

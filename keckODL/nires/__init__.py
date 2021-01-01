@@ -1,6 +1,6 @@
 from astropy import units as u
 
-from ..offset import InstrumentFrame, TelescopeOffset, OffsetPattern
+from ..offset import InstrumentFrame, TelescopeOffset, OffsetPattern, pmfm
 
 from .config import NIRESConfig
 from .detector import NIRESScamDetectorConfig, NIRESSpecDetectorConfig
