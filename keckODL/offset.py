@@ -146,9 +146,12 @@ class TelescopeOffset():
 
     guide : boolean
         A boolean value indicating whether to guide at that position.
+
+    pmfm : int
+        The pmfm value to be used.  Defaults to None which does not set it.
     '''
     def __init__(self, dx=0, dy=0, dr=0, relative=False, frame=SkyFrame(),
-                 posname='', guide=True):
+                 posname='', guide=True, pmfm=None):
         self.dx = dx
         self.dy = dy
         self.dr = dr
@@ -156,6 +159,7 @@ class TelescopeOffset():
         self.relative = relative
         self.posname = posname
         self.guide = guide
+        self.pmfm = pmfm
         self.standardize_units()
         self.validate()
 
@@ -169,17 +173,19 @@ class TelescopeOffset():
         rel2what = {True: 'rel2curr=t', False: 'rel2base=t'}[self.relative]
         print(f'{repr(self.frame.xkw)}.write({self.dx.value}, {rel2what})')
         print(f'{repr(self.frame.ykw)}.write({self.dy.value}, {rel2what})')
+        # set pmfm
+        if self.pmfm is not None:
+            print(f'Set pmfm value to {self.pmfm}')
 
 
     def validate(self):
         '''Validate the offset.
-        
+
         Check that a known frame was used.
         '''
         # Is the given frame a known OffsetFrame
         if isinstance(self.frame, OffsetFrame) is False:
             raise OffsetError(f'"{self.frame}" is not a known OffsetFrame')
-
 
 
     def standardize_units(self):
@@ -442,3 +448,18 @@ def StarSkyStar(dx=10*u.arcsec, dy=10*u.arcsec, repeat=1):
                          frame=SkyFrame(), guide=True)
     return OffsetPattern([o1, o2, o3], repeat=repeat,
                          name=f'StarSkyStar ({dx.value:.0f} {dy.value:.0f})')
+
+
+def pmfm(value=350):
+    '''A two "position" pattern which, rather than offsetting the telescope,
+    sets the pmfm value to +value and -value.
+
+    Attributes
+    ----------
+    value : int
+        The pmfm value to set.
+    '''
+    o1 = TelescopeOffset(dx=0, dy=0, posname=f'+{value}', pmfm=value)
+    o2 = TelescopeOffset(dx=0, dy=0, posname=f'-{value}', pmfm=-value))
+    return OffsetPattern([o1, o2], name=f'PMFM +/-{value}')
+
