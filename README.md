@@ -104,9 +104,9 @@ One of the primary areas where this may be useful is in the mask alignment proce
 
 #### BlindAlign
 
-The `keckODL.alignment.BlindAlign` object specifies a "blind" alignment.  This accepts only one argument: `slew` which, if True (the default) means to slew the telescope to the target and perform no additional alignment steps.
+The `keckODL.alignment.BlindAlign` object specifies a "blind" alignment.  A BlindAlign will slew the telescope to the target and perform no additional alignment steps.
 
-If the `slew` value is False, this is an explicit request to avoid slewing the telescope at all.  This would be used if the observer wants to preserve the alignment from the previous OB.
+A similar, but distinct alignment strategy would be a `None` object (instead of some instance of an `Alignment`) which means do not slew the telescope.  It is meant to indicate that the telescope should not be moved because it is already aligned.  One would use this, for example, for a second OB on the same mask with different instrument or detector configurations because the mask was aligned in the previous OB.
 
 #### GuiderAlign
 

@@ -79,9 +79,8 @@ class BlindAlign(Alignment):
         If False, this implies that the telescope is already aligned and should
         not be moved.
     '''
-    def __init__(self, slew=True):
-        self.slew = slew
-        name = 'Blind Align' if slew is True else 'none'
+    def __init__(self):
+        name = 'Blind Align'
         super().__init__(name=name)
 
 
