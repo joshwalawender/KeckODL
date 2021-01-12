@@ -112,9 +112,9 @@ If the `slew` value is False, this is an explicit request to avoid slewing the t
 
 The `keckODL.alignment.GuiderAlign` object specifies an alignment using the slit viewing or guide camera.  Note that whether the alignment uses an offset star is still encoded in the `Target` instance for compatibility with traditional Keck starlists.
 
-The only argument for an instance of `GuiderAlign` is the boolean value for `faint` which defaults to False.  How to handle the value of faint varies by instrument, but for a normal slit viewing guider (e.g. LRIS or ESI), the faint flag indicates to the OA that the guide exposure may need to be increased.
+The only argument for an instance of `GuiderAlign` is the boolean value for `bright` which defaults to True.  How to handle the value of faint varies by instrument, but for a normal slit viewing guider (e.g. LRIS or ESI), if bright is False, that indicates to the OA that the guide exposure may need to be increased.
 
-Anoher use of the faint flag would be for IR slit viewing cameras (e.g. NIRES), where the faint flag being set to true would indicate the need to do a sky subtracted pair to identify the target.
+Anoher use of the bright flag would be for IR slit viewing cameras (e.g. NIRES), where the bright flag being set to False would indicate the need to do a sky subtracted pair to identify the target.
 
 #### MaskAlign
 

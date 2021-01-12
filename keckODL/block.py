@@ -23,12 +23,13 @@ class ObservingBlock():
     Can be thought of as one line in a table of actions.
     '''
     def __init__(self, target=None, pattern=None, instconfig=None,
-                 detconfig=None):
+                 detconfig=None, align=None):
         self.target = target
         self.pattern = pattern
         self.instconfig = instconfig
         self.detconfig = detconfig if type(detconfig) in [list, tuple]\
                          else [detconfig]
+        self.align = align
 
 
     def validate(self):
@@ -58,12 +59,14 @@ class ObservingBlock():
 
     def __str__(self):
         return (f'{str(self.target):15s}|{str(self.pattern):22s}|'
-                f'{str(self.instconfig):45s}|{str(self.detconfig):36s}')
+                f'{str(self.instconfig):45s}|{str(self.detconfig):36s}|'
+                f'{str(self.align):20s}')
 
 
     def __repr__(self):
         return (f'{str(self.target):15s}|{str(self.pattern):22s}|'
-                f'{str(self.instconfig):45s}|{str(self.detconfig):36s}')
+                f'{str(self.instconfig):45s}|{str(self.detconfig):36s}|'
+                f'{str(self.align):20s}')
 
 
 ##-------------------------------------------------------------------------
@@ -145,9 +148,10 @@ class ObservingBlockList(UserList):
 
     def __str__(self):
         output = [(f'{"Target":15s}|{"Pattern":22s}|'
-                   f'{"InstrumentConfig":45s}|{"DetectorConfig":36s}'),
+                   f'{"InstrumentConfig":45s}|{"DetectorConfig":36s}|'
+                   f'{"AlignmentMethod":20s}'),
                   (f'{"-"*15:15s}|{"-"*22:22}|{"-"*45:45}|'
-                   f'{"-"*36:36s}')]
+                   f'{"-"*36:36s}|{"-"*20:20s}')]
         for item in self.data:
             output.append(item.__str__())
         return "\n".join(output)
@@ -155,9 +159,10 @@ class ObservingBlockList(UserList):
 
     def __repr__(self):
         output = [(f'{"Target":15s}|{"Pattern":22s}|'
-                   f'{"InstrumentConfig":45s}|{"DetectorConfig":36s}'),
+                   f'{"InstrumentConfig":45s}|{"DetectorConfig":36s}|'
+                   f'{"AlignmentMethod":20s}'),
                   (f'{"-"*15:15s}|{"-"*22:22}|{"-"*45:45}|'
-                   f'{"-"*36:36s}')]
+                   f'{"-"*36:36s}|{"-"*20:20s}')]
         for item in self.data:
             output.append(item.__str__())
         return "\n".join(output)

@@ -81,7 +81,7 @@ class BlindAlign(Alignment):
     '''
     def __init__(self, slew=True):
         self.slew = slew
-        name = 'blind' if slew is True else 'none'
+        name = 'Blind Align' if slew is True else 'none'
         super().__init__(name=name)
 
 
@@ -95,15 +95,15 @@ class GuiderAlign(Alignment):
 
     Attributes
     ----------
-    faint : boolean
-        If True, then the OA may need to increase guider exposure time to see
+    bright : boolean
+        If False, then the OA may need to increase guider exposure time to see
         the target (or offset star if offset is also True) in order to align
         it on the guider.
     '''
     def __init__(self, bright=True):
-        name = 'guider'
+        name = 'Guider Align'
         if bright is False:
-            name += ',faint'
+            name += ', faint'
         super().__init__(name=name)
 
 
@@ -117,12 +117,11 @@ class MaskAlign(Alignment):
     Attributes
     ----------
     '''
-    def __init__(self, bright=True, detconfig=None, filter=None,
+    def __init__(self, bright=False, detconfig=None, filter=None,
                  takesky=False):
-        self.offset = offset
-        name = 'mask'
+        name = 'Mask Align'
         if bright is True:
-            name += ',bright'
+            name += ', bright'
         super().__init__(name=name)
         self.detconfig = detconfig
         self.takesky = takesky
