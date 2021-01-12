@@ -25,7 +25,7 @@ class MOSFIREDetectorConfig(IRDetectorConfig):
         '''Check values and verify that they meet assumptions.
         
         Check:
-        - readoutmode is either CDS or MCDSn where n is 1-32.
+        - readoutmode is either CDS or MCDSn where n is 1-16.
         
         Warn:
         '''
@@ -35,8 +35,13 @@ class MOSFIREDetectorConfig(IRDetectorConfig):
                                       f'is not CDS or MCDSn')
         else:
             nreads = int(parse_readoutmode.group(2))
-            if nreads > 32:
+            if nreads > 16:
                 raise DetectorConfigError(f'MCDS{nreads} not supported '
                                           f'(only 1-16 are supported)')
 
 
+##-------------------------------------------------------------------------
+## Pre-Defined Values
+##-------------------------------------------------------------------------
+default_acquisition = MOSFIREDetectorConfig(exptime=7, coadds=3,
+                                            readoutmode='CDS')
