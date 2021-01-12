@@ -22,6 +22,7 @@ An Observing Block is comprised of
 - 1 OffsetPattern
 - 1 Instrument Configuration
 - 1 or more Detector Configurations
+- 1 Alignment
 
 These components and their sub-components are described below.
 
@@ -94,3 +95,31 @@ The `IRDetectorConfig` sub-class adds the additional property of coadds which is
 #### VisibleDetectorConfig
 
 The `VisibleDetectorConfig` sub-class adds additional properties common to CCD detectors such as binning, windowing, ampmode, and dark.
+
+## Alignment
+
+The `keckODL.alignment.Alignment` is an object to hold information about how to align the telescope on target.  While much of this processis handled by humans (either the OA or the observer depending on the alignment method and instrument), it is useful to allow for information on how to align to be carried around in the OB for re-use.
+
+One of the primary areas where this may be useful is in the mask alignment process.  Having an `Alignment` object contain the filter and exposure information may be useful.  In the vast majority of cases, however, we expect the observer to simply choose a method and accept the default arguments.
+
+#### BlindAlign
+
+The `keckODL.alignment.BlindAlign` object specifies a "blind" alignment.  This accepts only one argument: `slew` which, if True (the default) means to slew the telescope to the target and perform no additional alignment steps.
+
+If the `slew` value is False, this is an explicit request to avoid slewing the telescope at all.  This would be used if the observer wants to preserve the alignment from the previous OB.
+
+#### GuiderAlign
+
+The `keckODL.alignment.GuiderAlign` object specifies an alignment using the slit viewing or guide camera.  Note that whether the alignment uses an offset star is still encoded in the `Target` instance for compatibility with traditional Keck starlists.
+
+The only argument for an instance of `GuiderAlign` is the boolean value for `faint` which defaults to False.  How to handle the value of faint varies by instrument, but for a normal slit viewing guider (e.g. LRIS or ESI), the faint flag indicates to the OA that the guide exposure may need to be increased.
+
+Anoher use of the faint flag would be for IR slit viewing cameras (e.g. NIRES), where the faint flag being set to true would indicate the need to do a sky subtracted pair to identify the target.
+
+#### MaskAlign
+
+The `keckODL.alignment.MaskAlign` object specifies an alignment using the Slitmask Alignment Tool (or similar software).  This alignment is done using one of the science detectors in the instrument.  Thus one of the arguments for this object is `detconfig` which would contain a `DetectorConfig` instance.  This allows the observer to choose the detector parameters for the alignment (e.g. exposure time, number of coadds, etc.).
+
+Other arguments for this object include the boolean `takesky` to control whether a sky frame should be taken (typical for IR instruments), and an argument `filter` to specify which filter should be used for the alignment images.
+
+As with a `GuiderAlign`, the `Target` properties can specify that this can be done on an offset star.  This is unusual with this alignment method, but has been done with MOSFIRE for example.  In that case, the offset would be aplpied after the alignment process is complete.

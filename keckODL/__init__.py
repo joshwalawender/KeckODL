@@ -125,7 +125,6 @@ def parse_yaml(contents):
                                  RAOffset=td.get('RAOffset', None),
                                  DecOffset=td.get('DecOffset', None),
                                  objecttype=td.get('objecttype', None),
-                                 acquisition=td.get('acquisition', None),
                                  frame=td.get('frame', None),
                                  PMRA=td.get('PMRA', 0),
                                  PMDec=td.get('PMDec', 0),

@@ -460,6 +460,6 @@ def pmfm(value=350):
         The pmfm value to set.
     '''
     o1 = TelescopeOffset(dx=0, dy=0, posname=f'+{value}', pmfm=value)
-    o2 = TelescopeOffset(dx=0, dy=0, posname=f'-{value}', pmfm=-value))
+    o2 = TelescopeOffset(dx=0, dy=0, posname=f'-{value}', pmfm=-value)
     return OffsetPattern([o1, o2], name=f'PMFM +/-{value}')
 

@@ -6,7 +6,6 @@
     PMRA: 10
     RA: 82.6236674747452
     RAOffset: 8.4
-    acquisition: 'guider: offset'
     comment: Star formation is cool
     ddec: 0
     dra: 0
@@ -28,7 +27,6 @@
     PMRA: 0
     RA: 10.684708333333331
     RAOffset: 12.1
-    acquisition: 'guider: offset'
     comment: Galaxies are boring
     ddec: 0
     dra: 0
@@ -50,7 +48,6 @@
     PMRA: 0
     RA: 52.297
     RAOffset: null
-    acquisition: blind
     comment: Low mass star formation is the coolest
     ddec: 0
     dra: 0
@@ -70,7 +67,6 @@
     PMRA: 0
     RA: 349.99333127
     RAOffset: null
-    acquisition: 'guider: bright'
     comment: I guess we need a standard
     ddec: 0
     dra: 0

@@ -10,17 +10,10 @@ from astropy import coordinates as c
 from astropy.time import Time
 
 
-# List the valid values for the rotator mode, acquisition, and object types
+# List the valid values for the rotator mode, object types, and PA.
 rotator_modes = ['pa',
                  'stationary',
                  'vertical']
-acquisition_modes = ['guider: bright',
-                     'guider: faint',
-                     'guider: offset',
-                     'mask align',
-                     'mask align + offset',
-                     'blind',
-                     'none']
 object_types = ['science',
                 'sky',
                 'flux standard',
@@ -88,11 +81,6 @@ class Target():
         The type of object.  Must be one of 'science', 'sky', 'flux standard',
         'telluric standard', 'custom'.
     
-    acquisition : string
-        The acquisition strategy for this target.  Must be one of
-        'guider: bright', 'guider: faint', 'guider: offset', 'mask align',
-        'blind'.  Definitions for those are below.
-    
     PMRA : float
     PMDec : float
         The proper motion of the target in arcseconds per year.
@@ -128,27 +116,6 @@ class Target():
     comment : string
         An arbitrary user comment.
     
-    Acquisition Strategies
-    ----------------------
-    guider: bright
-        Target will be visible on typical guider exposures.  No special
-        exposure settings needed.
-    
-    guider: faint
-        Target will need either increased exposure time (i.e. for visible light
-        guide cameras) or will need sky subtraction (i.e. for IR guide cameras)
-    
-    guider: offset
-        The target coordinates are for an offset star and offsets will be used
-        to center the science target after centering the offset star.
-    
-    mask align
-        Acquisition use the slitmask alignment tool.  Typically by imaging
-        known alignment stars through alignment holes in the mask.
-    
-    blind
-        Just point and shoot.
-    
     Rotator Modes
     -------------
     PA
@@ -174,7 +141,7 @@ class Target():
     '''
     def __init__(self, name=None, RA=None, Dec=None, equinox=None, frame='icrs',
                  rotmode=None, PA=None, RAOffset=None, DecOffset=None,
-                 objecttype=None, acquisition=None,
+                 objecttype=None,
                  PMRA=0, PMDec=0, epoch=None, obstime=None,
                  mag = {'B': None, 'V': None, 'R': None, 'I': None,
                         'u': None, 'g': None, 'r': None, 'i': None, 'z': None,
@@ -193,7 +160,6 @@ class Target():
         self.RAOffset = RAOffset # in arcsec
         self.DecOffset = DecOffset # in arcsec
         self.objecttype = objecttype
-        self.acquisition = acquisition
         self.mag = mag
         self.frame = frame
         self.PMRA = PMRA # proper motion in RA in arcsec per year
@@ -237,7 +203,6 @@ class Target():
         Check:
         - rotator mode is valid value
         - PA is 0-360 (may need different limits for other modes)
-        - acquisition is valid value
         - type is valid value [Science, Sky, Flux standard, Telluric standard,
           Custom]
         
@@ -245,7 +210,6 @@ class Target():
         - no rotator mode
         - rotator mode is PA and no PA set
         - rotator mode is vertical and PA != 0
-        - acquisition not given
         '''
 
         if self.name is None:
@@ -270,13 +234,6 @@ class Target():
             or self.PA > valid_PAs.get(self.rotmode.lower())[1]:
             raise TargetError(f'Rotator PA "{self.PA:.1f}" not in range '
                               f'{valid_PAs.get(self.rotmode.lower())}')
-
-        if self.acquisition is None:
-            self.acquisition = 'guider: bright'
-            warn('No acquisition mode given, assuming "guider: bright"',
-                          category=TargetWarning)
-        if self.acquisition.lower() not in acquisition_modes:
-            raise TargetError(f'Acquisition mode "{self.acquisition}" not valid')
 
         if self.objecttype is None:
             self.objecttype = 'science'
@@ -437,7 +394,6 @@ class Target():
             'RAOffset': self.RAOffset,
             'DecOffset': self.DecOffset,
             'objecttype': self.objecttype,
-            'acquisition': self.acquisition,
             'PMRA': self.PMRA,
             'PMDec': self.PMDec,
             'obstime': obstime,
@@ -512,7 +468,6 @@ class TargetList(UserList):
                           RAOffset=d.get('RAOffset', None),
                           DecOffset=d.get('DecOffset', None),
                           objecttype=d.get('objecttype', None),
-                          acquisition=d.get('acquisition', None),
                           frame=d.get('frame', None),
                           PMRA=d.get('PMRA', 0),
                           PMDec=d.get('PMDec', 0),
@@ -572,4 +527,4 @@ def DomeFlats(PA=0):
     '''Function to return a Target for dome flats
     '''
     return Target(name='DomeFlats', rotmode='Stationary', PA=PA,
-                  objecttype='cal', acquisition='blind')
+                  objecttype='cal')
