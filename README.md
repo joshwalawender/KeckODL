@@ -26,6 +26,20 @@ An Observing Block is comprised of
 
 These components and their sub-components are described below.
 
+An OB comes in one of several types, represented by sub-classes.  Thus the `ObservingBlock` class itself is an abstract class which should be sub-classed in normal use.
+
+### Observing Block Types
+
+`ScienceBlock`: An OB representing a science observation.
+
+`TelluricBlock`: An OB representing a telluric standard observation.
+
+`StandardStarBlock`: An OB representing a standard star observation.
+
+`CalibrationBlock`: An OB representing a calibration observation (e.g. arc lamps or dome flats).
+
+`FocusBlock`: An OB representing a telescope focus operation.
+
 
 ## Target
 
