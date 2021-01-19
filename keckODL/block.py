@@ -18,7 +18,8 @@ class BlockWarning(UserWarning):
 ## ObservingBlock
 ##-------------------------------------------------------------------------
 class ObservingBlock():
-    '''Object describing an observing block.
+    '''Object describing an observing block.  This is an abstract class which
+    is intended to be subclassed.
     
     Attributes
     ----------
@@ -41,6 +42,8 @@ class ObservingBlock():
         The alignment strategy to use for this observing block.
 
     blocktype : str
+        A string describing the block type.  Set automatically if one of the
+        subclasses is instantiated.  Defaults to None for this abstract class.
 
     associatedblocks : list
 
@@ -117,7 +120,7 @@ class ScienceBlock(ObservingBlock):
     '''An observing block describing a science observation.
     '''
     def __init__(self, target=None, pattern=None, instconfig=None,
-                 detconfig=None, align=None, blocktype='science'):
+                 detconfig=None, align=None, blocktype='Science'):
         super().__init__(target=target, pattern=pattern, instconfig=instconfig,
                          detconfig=detconfig, align=align, blocktype=blocktype)
 
@@ -129,7 +132,7 @@ class TelluricBlock(ObservingBlock):
     '''An observing block describing a telluric standard observation.
     '''
     def __init__(self, target=None, pattern=None, instconfig=None,
-                 detconfig=None, align=None, blocktype='telluric'):
+                 detconfig=None, align=None, blocktype='Telluric'):
         super().__init__(target=target, pattern=pattern, instconfig=instconfig,
                          detconfig=detconfig, align=align, blocktype=blocktype)
 
@@ -141,7 +144,7 @@ class StandardStarBlock(ObservingBlock):
     '''An observing block describing a standard star observation.
     '''
     def __init__(self, target=None, pattern=None, instconfig=None,
-                 detconfig=None, align=None, blocktype='standard'):
+                 detconfig=None, align=None, blocktype='StandardStar'):
         super().__init__(target=target, pattern=pattern, instconfig=instconfig,
                          detconfig=detconfig, align=align, blocktype=blocktype)
 
@@ -153,7 +156,7 @@ class CalibrationBlock(ObservingBlock):
     '''An observing block describing a calibration observation.
     '''
     def __init__(self, target=None, pattern=None, instconfig=None,
-                 detconfig=None, align=None, blocktype='calibration'):
+                 detconfig=None, align=None, blocktype='Calibration'):
         super().__init__(target=target, pattern=pattern, instconfig=instconfig,
                          detconfig=detconfig, align=align, blocktype=blocktype)
 
@@ -165,7 +168,7 @@ class FocusBlock(ObservingBlock):
     '''An observing block describing a calibration observation.
     '''
     def __init__(self, target=None, pattern=None, instconfig=None,
-                 detconfig=None, align=None, blocktype='focus'):
+                 detconfig=None, align=None, blocktype='Focus'):
         super().__init__(target=target, pattern=pattern, instconfig=instconfig,
                          detconfig=detconfig, align=align, blocktype=blocktype)
 
