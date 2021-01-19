@@ -10,7 +10,7 @@ from astropy import units as u
 
 from ..instrument_config import InstrumentConfig
 from ..offset import Stare
-from ..block import ObservingBlock, ObservingBlockList
+from ..block import CalibrationBlock, ObservingBlockList
 from ..target import DomeFlats
 from .detector import NIRESScamDetectorConfig, NIRESSpecDetectorConfig
 
@@ -52,7 +52,7 @@ class NIRESConfig(InstrumentConfig):
         exptime = lamp_exptimes['arcs']
         dc_for_arcs = NIRESSpecDetectorConfig(exptime=exptime,
                                               readoutmode='CDS')
-        arcs = ObservingBlock(target=None,
+        arcs = CalibrationBlock(target=None,
                               pattern=Stare(repeat=3),
                               instconfig=ic_for_arcs,
                               detconfig=dc_for_arcs,
@@ -69,7 +69,7 @@ class NIRESConfig(InstrumentConfig):
         ic_for_domeflats.name += f' domelamp={lamp_str}'
         dc_for_domeflats = NIRESSpecDetectorConfig(exptime=100, 
                                            readoutmode='CDS')
-        domeflats = ObservingBlock(target=DomeFlats(),
+        domeflats = CalibrationBlock(target=DomeFlats(),
                                    pattern=Stare(repeat=9),
                                    instconfig=ic_for_domeflats,
                                    detconfig=dc_for_domeflats,

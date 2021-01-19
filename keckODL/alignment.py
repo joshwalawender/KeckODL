@@ -38,7 +38,6 @@ class Alignment():
 
     def to_dict(self):
         return {'Alignments': [{'name': self.name,
-                                'instrument': self.instrument,
                                 }]}
 
 

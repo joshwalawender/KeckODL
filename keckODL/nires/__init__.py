@@ -1,5 +1,6 @@
 from astropy import units as u
 
+from ..block import FocusBlock
 from ..offset import InstrumentFrame, TelescopeOffset, OffsetPattern, pmfm
 
 from .config import NIRESConfig
@@ -26,3 +27,13 @@ def ABBA(offset=1.25*u.arcsec, guide=True, repeat=1):
     o4 = TelescopeOffset(dx=0, dy=+offset, posname="A", guide=guide, frame=slit)
     return OffsetPattern([o1, o2, o3, o4], repeat=repeat,
                          name=f'ABBA ({offset:.2f})')
+
+
+##-------------------------------------------------------------------------
+## Standard Blocks
+##-------------------------------------------------------------------------
+def mira():
+    return FocusBlock(target=None,
+                      pattern=pmfm(),
+                      instconfig=NIRESConfig(),
+                      detconfig=NIRESScamDetectorConfig(exptime=2, coadds=5))

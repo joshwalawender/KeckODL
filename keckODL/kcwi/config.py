@@ -10,7 +10,7 @@ from astropy import units as u
 
 from ..instrument_config import InstrumentConfig
 from ..offset import Stare
-from ..block import ObservingBlock, ObservingBlockList
+from ..block import ObservingBlockList, CalibrationBlock
 from ..target import DomeFlats
 from .detector import KCWIblueDetectorConfig, KCWIredDetectorConfig
 
@@ -44,7 +44,7 @@ class KCWIConfig(InstrumentConfig):
         self.bluegrating = bluegrating
         self.bluefilter = bluefilter
         self.bluecwave = bluecwave
-        self.bluepwave = bluecwave-300 if bluepwave is None else bluepwave
+        self.bluepwave = bluepwave
         self.bluenandsmask = bluenandsmask
         self.bluefocus = bluefocus
 
@@ -52,7 +52,7 @@ class KCWIConfig(InstrumentConfig):
         self.redgrating = redgrating
         self.redfilter = redfilter
         self.redcwave = redcwave
-        self.redpwave = redcwave-300 if redpwave is None else redpwave
+        self.redpwave = redpwave
         self.rednandsmask = rednandsmask
         self.redfocus = redfocus
 
@@ -63,7 +63,10 @@ class KCWIConfig(InstrumentConfig):
         self.domeflatlamp = domeflatlamp
 
         # Set config name
-        self.name = f'{self.slicer} {self.bluegrating} {self.bluecwave*u.A:.0f}'
+        if self.slicer == 'FPC':
+            self.name = 'FPC'
+        else:
+            self.name = f'{self.slicer} {self.bluegrating} {self.bluecwave*u.A:.0f}'
         if self.calobj != 'Dark':
             self.name += f' calobj={self.calobj}'
         if self.arclamp is not None:
@@ -121,7 +124,7 @@ class KCWIConfig(InstrumentConfig):
         ic_for_contbars.name += f' calobj={ic_for_contbars.calobj}'
         exptime = lamp_exptimes[ic_for_contbars.arclamp]
         dc_for_contbars = KCWIblueDetectorConfig(exptime=exptime)
-        contbars = ObservingBlock(target=None,
+        contbars = CalibrationBlock(target=None,
                                   pattern=Stare(repeat=1),
                                   instconfig=ic_for_contbars,
                                   detconfig=dc_for_contbars,
@@ -138,7 +141,7 @@ class KCWIConfig(InstrumentConfig):
         ic_for_arcs.name += f' arclamp={ic_for_arcs.arclamp}'
         ic_for_arcs.name += f' calobj={ic_for_arcs.calobj}'
         dc_for_arcs = KCWIblueDetectorConfig(exptime=lamp_exptimes[lampname])
-        arcs = ObservingBlock(target=None,
+        arcs = CalibrationBlock(target=None,
                               pattern=Stare(repeat=1),
                               instconfig=ic_for_arcs,
                               detconfig=dc_for_arcs,
@@ -153,7 +156,7 @@ class KCWIConfig(InstrumentConfig):
         ic_for_domeflats.domeflatlamp = not off
         ic_for_domeflats.name += f' domeflatlamp={not off}'
         dc_for_domeflats = KCWIblueDetectorConfig(exptime=100)
-        domeflats = ObservingBlock(target=DomeFlats(),
+        domeflats = CalibrationBlock(target=DomeFlats(),
                                    pattern=Stare(repeat=3),
                                    instconfig=ic_for_domeflats,
                                    detconfig=dc_for_domeflats,
@@ -167,7 +170,7 @@ class KCWIConfig(InstrumentConfig):
         ic_for_bias = deepcopy(self)
         ic_for_bias.name += f' bias'
         dc_for_bias = KCWIblueDetectorConfig(exptime=0, dark=True)
-        bias = ObservingBlock(target=None,
+        bias = CalibrationBlock(target=None,
                               pattern=Stare(repeat=7),
                               instconfig=ic_for_bias,
                               detconfig=dc_for_bias,

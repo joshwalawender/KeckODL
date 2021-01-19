@@ -1,5 +1,6 @@
 from astropy import units as u
 
+from ..block import FocusBlock
 from ..offset import InstrumentFrame, pmfm
 
 from .config import KCWIConfig
@@ -34,14 +35,14 @@ def mira():
                     rednandsmask=False, redfocus=None,
                     calmirror='Sky', calobj='Dark', arclamp=None,
                     domeflatlamp=None, polarizer=None)
-    return ObservingBlock(target=None,
-                          pattern=pmfm(),
-                          instconfig=ic,
-                          detconfig=KCWIFPCDetectorConfig(exptime=5))
+    return FocusBlock(target=None,
+                      pattern=pmfm(),
+                      instconfig=ic,
+                      detconfig=KCWIFPCDetectorConfig(exptime=5))
 
 
 def autofoc():
-    return ObservingBlock(target=None,
-                          pattern=None,
-                          instconfig=None,
-                          detconfig=None)
+    return FocusBlock(target=None,
+                      pattern=None,
+                      instconfig=None,
+                      detconfig=None)

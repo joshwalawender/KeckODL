@@ -1,5 +1,6 @@
 from astropy import units as u
 
+from ..block import FocusBlock
 from ..offset import InstrumentFrame, TelescopeOffset, OffsetPattern, pmfm
 
 from .config import MOSFIREConfig
@@ -43,10 +44,10 @@ def long2pos(guide=True, repeat=1):
 ##-------------------------------------------------------------------------
 ## Standard Blocks
 ##-------------------------------------------------------------------------
-def mira():
-    return ObservingBlock(target=None,
-                          pattern=Stare(),
-                          instconfig=MOSFIREConfig(slicer='FPC'),
-                          detconfig=MOSFIREDetectorConfig(exptime=2, coadds=5))
-
-
+def mira(filter='J', exptime=2, coadds=5, mask=None):
+    ic = MOSFIREConfig(mode='imaging', mask=mask, miramask=True, filter=filter)
+    dc = MOSFIREDetectorConfig(exptime=exptime, coadds=coadds)
+    return FocusBlock(target=None,
+                      pattern=pmfm(),
+                      instconfig=ic,
+                      detconfig=dc)

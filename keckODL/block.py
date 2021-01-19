@@ -20,16 +20,52 @@ class BlockWarning(UserWarning):
 class ObservingBlock():
     '''Object describing an observing block.
     
-    Can be thought of as one line in a table of actions.
+    Attributes
+    ----------
+    target : a `Target` instance or None
+        The target this block will be used to observe.  None indicates that
+        either the target has already been acquired in a previous block and no
+        other actions are needed or that the target is not specified (for
+        example, no target is needed for a set of arc lamp spectra).
+
+    pattern : an `OffsetPattern` instance
+        The offset pattern to use for this observing block.
+
+    instconfig : an instance of `InstrumentConfig` or one if its subclasses
+        The instrument config to use for this observing block.
+
+    detconfig : an instance of `DetectorConfig` or one if its subclasses
+        The detector config to use for this observing block.
+
+    align : an `Alignment` instance
+        The alignment strategy to use for this observing block.
+
+    blocktype : str
+
+    associatedblocks : list
+
+    guidestar : an `astropy.coordinates.SkyCoord` instance
+
+    drp_args : a dict containing arguments for the data reduction pipeline
+
+    ql_args : a dict containing arguments for the quick look pipeline
     '''
     def __init__(self, target=None, pattern=None, instconfig=None,
-                 detconfig=None, align=None):
+                 detconfig=None, align=None, blocktype=None,
+                 associatedblocks=None, guidestar=None,
+                 drp_args=None, ql_args=None,
+                 ):
         self.target = target
         self.pattern = pattern
         self.instconfig = instconfig
         self.detconfig = detconfig if type(detconfig) in [list, tuple]\
                          else [detconfig]
         self.align = align
+        self.blocktype = blocktype
+        self.associatedblocks = associatedblocks
+        self.guidestar = guidestar
+        self.drp_args = drp_args
+        self.ql_args = ql_args
 
 
     def validate(self):
@@ -54,7 +90,12 @@ class ObservingBlock():
 
 
     def cals(self):
-        return self.instconfig.cals()
+        if isinstance(self, CalibrationBlock):
+            return None
+        elif isinstance(self, FocusBlock):
+            return None
+        else:
+            return self.instconfig.cals()
 
 
     def __str__(self):
@@ -70,46 +111,63 @@ class ObservingBlock():
 
 
 ##-------------------------------------------------------------------------
-## SecondaryBlock
+## ScienceBlock
 ##-------------------------------------------------------------------------
-class SecondaryBlock():
-    '''Object describing a secondary observing block.
+class ScienceBlock(ObservingBlock):
+    '''An observing block describing a science observation.
     '''
-    def __init__(self, instconfig=None, linkedto=None):
-        self.instconfig = instconfig
-        self.linkedto = linkedto
+    def __init__(self, target=None, pattern=None, instconfig=None,
+                 detconfig=None, align=None, blocktype='science'):
+        super().__init__(target=target, pattern=pattern, instconfig=instconfig,
+                         detconfig=detconfig, align=align, blocktype=blocktype)
 
 
-    def validate(self):
-        pass
+##-------------------------------------------------------------------------
+## TelluricBlock
+##-------------------------------------------------------------------------
+class TelluricBlock(ObservingBlock):
+    '''An observing block describing a telluric standard observation.
+    '''
+    def __init__(self, target=None, pattern=None, instconfig=None,
+                 detconfig=None, align=None, blocktype='telluric'):
+        super().__init__(target=target, pattern=pattern, instconfig=instconfig,
+                         detconfig=detconfig, align=align, blocktype=blocktype)
 
 
-    def estimate_time(self):
-        '''Estimate the wall clock time to complete this block.
-        '''
-        inst_time = self.instconfig.estimate_time()
-        return {'shutter open time': self.linkedto.pattern.repeat\
-                                     * len(self.linkedto.pattern)\
-                                     * inst_time['shutter open time'],
-                'wall clock time': self.linkedto.pattern.repeat\
-                                   * len(self.linkedto.pattern)\
-                                   * inst_time['wall clock time']}
+##-------------------------------------------------------------------------
+## StandardStarBlock
+##-------------------------------------------------------------------------
+class StandardStarBlock(ObservingBlock):
+    '''An observing block describing a standard star observation.
+    '''
+    def __init__(self, target=None, pattern=None, instconfig=None,
+                 detconfig=None, align=None, blocktype='standard'):
+        super().__init__(target=target, pattern=pattern, instconfig=instconfig,
+                         detconfig=detconfig, align=align, blocktype=blocktype)
 
 
-    def cals(self):
-        return self.instconfig.cals()
+##-------------------------------------------------------------------------
+## CalibrationBlock
+##-------------------------------------------------------------------------
+class CalibrationBlock(ObservingBlock):
+    '''An observing block describing a calibration observation.
+    '''
+    def __init__(self, target=None, pattern=None, instconfig=None,
+                 detconfig=None, align=None, blocktype='calibration'):
+        super().__init__(target=target, pattern=pattern, instconfig=instconfig,
+                         detconfig=detconfig, align=align, blocktype=blocktype)
 
 
-    def __str__(self):
-        return (f'{"( linked)":15s}|{"( linked)":22s}|'
-                f'{str(self.instconfig):45s}|'
-                f'{str(self.instconfig.detconfig):36s}')
-
-
-    def __repr__(self):
-        return (f'{"( linked)":15s}|{"( linked)":22s}|'
-                f'{str(self.instconfig):45s}|'
-                f'{str(self.instconfig.detconfig):36s}')
+##-------------------------------------------------------------------------
+## FocusBlock
+##-------------------------------------------------------------------------
+class FocusBlock(ObservingBlock):
+    '''An observing block describing a calibration observation.
+    '''
+    def __init__(self, target=None, pattern=None, instconfig=None,
+                 detconfig=None, align=None, blocktype='focus'):
+        super().__init__(target=target, pattern=pattern, instconfig=instconfig,
+                         detconfig=detconfig, align=align, blocktype=blocktype)
 
 
 ##-------------------------------------------------------------------------
@@ -141,7 +199,10 @@ class ObservingBlockList(UserList):
 
     def cals(self):
         calblocklist = ObservingBlockList()
-        for instconfig in set([OB.instconfig for OB in self.data]):
+        ics = [OB.instconfig for OB in self.data\
+               if not isinstance(OB, CalibrationBlock)\
+               and not isinstance(OB, FocusBlock)]
+        for instconfig in set(ics):
             calblocklist.extend( instconfig.cals() )
         return calblocklist
 
