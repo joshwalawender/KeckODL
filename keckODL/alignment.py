@@ -121,6 +121,14 @@ class MaskAlign(Alignment):
         if bright is True:
             name += ', bright'
         super().__init__(name=name)
+        self.bright = bright
         self.detconfig = detconfig
         self.takesky = takesky
         self.filter = filter
+
+    def to_dict(self):
+        return {'Alignments': [{'name': self.name,
+                                'bright': self.bright,
+                                'takesky': self.takesky,
+                                'filter': self.filter,
+                                }]}

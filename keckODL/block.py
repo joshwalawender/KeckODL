@@ -120,9 +120,12 @@ class ScienceBlock(ObservingBlock):
     '''An observing block describing a science observation.
     '''
     def __init__(self, target=None, pattern=None, instconfig=None,
-                 detconfig=None, align=None, blocktype='Science'):
+                 detconfig=None, align=None, blocktype='Science',
+                 associated=None,
+                 ):
         super().__init__(target=target, pattern=pattern, instconfig=instconfig,
                          detconfig=detconfig, align=align, blocktype=blocktype)
+        self.associated = associated
 
 
 ##-------------------------------------------------------------------------
