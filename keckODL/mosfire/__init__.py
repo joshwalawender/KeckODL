@@ -2,6 +2,7 @@ from astropy import units as u
 
 from ..block import FocusBlock
 from ..offset import InstrumentFrame, TelescopeOffset, OffsetPattern, pmfm
+from ..alignment import MaskAlign
 
 from .config import MOSFIREConfig
 from .detector import MOSFIREDetectorConfig
@@ -51,3 +52,19 @@ def mira(filter='J', exptime=2, coadds=5, mask=None):
                       pattern=pmfm(),
                       instconfig=ic,
                       detconfig=dc)
+
+
+##-------------------------------------------------------------------------
+## Standard Blocks
+##-------------------------------------------------------------------------
+class MOSFIREMaskAlign(MaskAlign):
+    '''An object to hold information about a how to align a mask or long slit
+    which does not use a slit viewing camera.
+
+    Attributes
+    ----------
+    '''
+    def __init__(self, bright=False, detconfig=None, filter='J',
+                 takesky=True):
+        super().__init__(bright=bright, detconfig=detconfig,
+                         filter=filter, takesky=takesky)
