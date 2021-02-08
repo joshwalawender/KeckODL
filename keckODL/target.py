@@ -14,12 +14,6 @@ from astropy.time import Time
 rotator_modes = ['pa',
                  'stationary',
                  'vertical']
-object_types = ['science',
-                'sky',
-                'flux standard',
-                'telluric standard',
-                'cal',
-                'custom']
 valid_PAs = {'pa': [0, 360],
              'stationary': [0, 360],
              'vertical': [0, 360],
@@ -77,10 +71,6 @@ class Target():
         The value in arcseconds to offset East/West or North/South from the
         given RA and Dec coordinate to get to the target,
     
-    objecttype : string
-        The type of object.  Must be one of 'science', 'sky', 'flux standard',
-        'telluric standard', 'custom'.
-    
     PMRA : float
     PMDec : float
         The proper motion of the target in arcseconds per year.
@@ -130,18 +120,9 @@ class Target():
         The rotator will keep the instrument fixed in horizon coordinates.  A
         position angle of 0 will mean the slit has the long axis parallel to
         elevation.
-    
-    Object Types
-    ------------
-    science
-    sky
-    flux standard
-    telluric standard
-    custom
     '''
     def __init__(self, name=None, RA=None, Dec=None, equinox=None, frame='icrs',
                  rotmode=None, PA=None, RAOffset=None, DecOffset=None,
-                 objecttype=None,
                  PMRA=0, PMDec=0, epoch=None, obstime=None,
                  mag = {'B': None, 'V': None, 'R': None, 'I': None,
                         'u': None, 'g': None, 'r': None, 'i': None, 'z': None,
@@ -159,7 +140,6 @@ class Target():
         self.PA = PA
         self.RAOffset = RAOffset # in arcsec
         self.DecOffset = DecOffset # in arcsec
-        self.objecttype = objecttype
         self.mag = mag
         self.frame = frame
         self.PMRA = PMRA # proper motion in RA in arcsec per year
@@ -234,13 +214,6 @@ class Target():
             or self.PA > valid_PAs.get(self.rotmode.lower())[1]:
             raise TargetError(f'Rotator PA "{self.PA:.1f}" not in range '
                               f'{valid_PAs.get(self.rotmode.lower())}')
-
-        if self.objecttype is None:
-            self.objecttype = 'science'
-            warn('No object type given, assuming "science"',
-                          category=TargetWarning)
-        if self.objecttype.lower() not in object_types:
-            raise TargetError(f'Object type "{self.objecttype}" is not valid')
 
         if self.wrap is not None:
             if self.wrap.lower() not in telescope_wraps:
@@ -393,7 +366,6 @@ class Target():
             'PA': self.PA,
             'RAOffset': self.RAOffset,
             'DecOffset': self.DecOffset,
-            'objecttype': self.objecttype,
             'PMRA': self.PMRA,
             'PMDec': self.PMDec,
             'obstime': obstime,
@@ -467,7 +439,6 @@ class TargetList(UserList):
                           PA=d.get('PA', None),
                           RAOffset=d.get('RAOffset', None),
                           DecOffset=d.get('DecOffset', None),
-                          objecttype=d.get('objecttype', None),
                           frame=d.get('frame', None),
                           PMRA=d.get('PMRA', 0),
                           PMDec=d.get('PMDec', 0),
@@ -526,5 +497,4 @@ class TargetList(UserList):
 def DomeFlats(PA=0):
     '''Function to return a Target for dome flats
     '''
-    return Target(name='DomeFlats', rotmode='Stationary', PA=PA,
-                  objecttype='cal')
+    return Target(name='DomeFlats', rotmode='Stationary', PA=PA)
