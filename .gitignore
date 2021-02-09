@@ -3,3 +3,4 @@
 offset_*.txt
 detector_*.txt
 instrument_*.txt
+*.yaml

@@ -79,10 +79,10 @@ class ObservingBlock():
 
     def to_dict(self, usenames=False):
         if usenames is True:
-            result = {'target': self.target.name,
+            result = {'target': 'None' if self.target is None else self.target.name,
                       'pattern': self.pattern.name,
                       'instconfig': self.instconfig.name,
-                      'detconfig': [d.name for d in self.detconfig],
+                      'detconfig': [('None' if d is None else d.name) for d in self.detconfig],
                       'align': str(self.align),
                       'blocktype': self.blocktype,
                       'associatedblocks': [str(b) for b in self.associatedblocks],
