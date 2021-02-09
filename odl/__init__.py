@@ -153,7 +153,7 @@ def parse_yaml(contents):
             for dc_dict in entry['DetectorConfigs']:
                 instname = dc_dict.pop('instrument')
                 detectorname = dc_dict.pop('detector')
-                dc = getattr(importlib.import_module(f'keckODL.{instname.lower()}'),
+                dc = getattr(importlib.import_module(f'odl.{instname.lower()}'),
                              f'{instname}{detectorname}DetectorConfig')(**dc_dict)
                 dcs.append(dc)
 
@@ -161,7 +161,7 @@ def parse_yaml(contents):
         if 'InstrumentConfigs' in entry.keys():
             for ic_dict in entry['InstrumentConfigs']:
                 instname = ic_dict.pop('instrument')
-                ic = getattr(importlib.import_module(f'keckODL.{instname.lower()}'),
+                ic = getattr(importlib.import_module(f'odl.{instname.lower()}'),
                              f'{instname}Config')(**ic_dict)
                 ics.append(ic)
 

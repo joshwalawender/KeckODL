@@ -43,5 +43,5 @@ class MOSFIREDetectorConfig(IRDetectorConfig):
 ##-------------------------------------------------------------------------
 ## Pre-Defined Values
 ##-------------------------------------------------------------------------
-default_acquisition = MOSFIREDetectorConfig(exptime=7, coadds=3,
-                                            readoutmode='CDS')
+default_acq = MOSFIREDetectorConfig(exptime=7, coadds=3, readoutmode='CDS')
+bright_acq = MOSFIREDetectorConfig(exptime=2, coadds=5, readoutmode='CDS')

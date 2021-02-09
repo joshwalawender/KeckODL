@@ -37,11 +37,10 @@ class Alignment():
 
 
     def to_dict(self):
-        return {'Alignments': [{'name': self.name,
-                                }]}
+        return {'name': self.name}
 
 
-    def to_YAML(self):
+    def to_yaml(self):
         '''Return string corresponding to a Detector Config Description
         Language (DCDL) YAML entry.
         '''
@@ -93,16 +92,24 @@ class GuiderAlign(Alignment):
 
     Attributes
     ----------
-    bright : boolean
-        If False, then the OA may need to increase guider exposure time to see
+    faint : boolean
+        If True, then the OA may need to increase guider exposure time to see
         the target (or offset star if offset is also True) in order to align
-        it on the guider.
+        it on the guider.  In the case of an IR slit viewing camera, this
+        indicates that a sky subtraction is likely necessary to see the target.
     '''
-    def __init__(self, bright=True):
+    def __init__(self, faint=True):
         name = 'Guider Align'
-        if bright is False:
+        if faint is True:
             name += ', faint'
+        self.faint = faint
         super().__init__(name=name)
+
+
+    def to_dict(self):
+        return {'name': self.name,
+                'faint': self.faint,
+                }
 
 
 ##-------------------------------------------------------------------------
@@ -115,20 +122,19 @@ class MaskAlign(Alignment):
     Attributes
     ----------
     '''
-    def __init__(self, bright=False, detconfig=None, filter=None,
-                 takesky=False):
-        name = 'Mask Align'
-        if bright is True:
-            name += ', bright'
+    def __init__(self, detconfig=None, filter=None, takesky=False):
+        name = f'Mask Align ({str(detconfig)})'
+        if takesky is True:
+            name += ' take sky'
         super().__init__(name=name)
-        self.bright = bright
         self.detconfig = detconfig
         self.takesky = takesky
         self.filter = filter
 
     def to_dict(self):
-        return {'Alignments': [{'name': self.name,
-                                'bright': self.bright,
-                                'takesky': self.takesky,
-                                'filter': self.filter,
-                                }]}
+        return {'name': self.name,
+                'takesky': self.takesky,
+                'filter': self.filter,
+                'detconfig': self.detconfig.to_dict(),
+                }
+

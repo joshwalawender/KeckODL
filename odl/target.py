@@ -378,6 +378,13 @@ class Target():
         return TDL_dict
 
 
+    def to_yaml(self):
+        '''Return yaml string corresponding to a Target Description Language
+        (TDL) entry.
+        '''
+        return yaml.dump(self.to_dict())
+
+
     def write(self, file):
         tl = TargetList([self])
         tl.write(file)
@@ -421,7 +428,7 @@ class TargetList(UserList):
 
 
     def write(self, file):
-        '''Write the target list to a YAML formatted file.
+        '''Write the target list to a yaml formatted file.
         '''
         p = Path(file).expanduser().absolute()
         if p.exists(): p.unlink()
@@ -451,7 +458,7 @@ class TargetList(UserList):
 
 
     def read(self, file):
-        '''Read targets from a YAML formatted file.
+        '''Read targets from a yaml formatted file.
         '''
         p = Path(file).expanduser().absolute()
         if p.exists() is False:

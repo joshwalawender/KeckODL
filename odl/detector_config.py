@@ -48,18 +48,23 @@ class DetectorConfig():
 
 
     def to_dict(self):
-        return {'DetectorConfigs': [{'name': self.name,
-                                     'instrument': self.instrument,
-                                     'detector': self.detector,
-                                     'exptime': self.exptime,
-                                     'nexp': self.nexp,
-                                     'readoutmode': self.readoutmode}]}
+        return {'name': self.name,
+                'instrument': self.instrument,
+                'detector': self.detector,
+                'exptime': self.exptime,
+                'nexp': self.nexp,
+                'readoutmode': self.readoutmode}
 
-    def to_YAML(self):
+
+    def to_yaml(self):
         '''Return string corresponding to a Detector Config Description
-        Language (DCDL) YAML entry.
+        Language (DCDL) yaml entry.
         '''
         return yaml.dump(self.to_dict())
+
+
+    def to_DB(self):
+        return {'DetectorConfigs': [self.to_dict()]}
 
 
     def write(self, file):
@@ -114,7 +119,7 @@ class IRDetectorConfig(DetectorConfig):
 
     def to_dict(self):
         output = super().to_dict()
-        output['DetectorConfigs'][0]['coadds'] = self.coadds
+        output['coadds'] = self.coadds
         return output
 
 
@@ -160,15 +165,15 @@ class VisibleDetectorConfig(DetectorConfig):
         exptime = self.exptime if self.exptime is not None else -1
         ampmode = self.ampmode if self.ampmode is not None else 'unknown'
         dark_str = {True: ' (Dark)', False: ''}[self.dark]
-        self.name = f'{self.instrument} {exptime:.0f}s{dark_str} x{self.nexp}'
+        self.name = f'{self.instrument}{self.detector} {exptime:.0f}s{dark_str} x{self.nexp}'
 
 
     def to_dict(self):
         output = super().to_dict()
-        output['DetectorConfigs'][0]['ampmode'] = self.ampmode
-        output['DetectorConfigs'][0]['dark'] = self.dark
-        output['DetectorConfigs'][0]['binning'] = self.binning
-        output['DetectorConfigs'][0]['window'] = self.window
+        output['ampmode'] = self.ampmode
+        output['dark'] = self.dark
+        output['binning'] = self.binning
+        output['window'] = self.window
         return output
 
 
