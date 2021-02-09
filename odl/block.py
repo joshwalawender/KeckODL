@@ -204,7 +204,7 @@ class CalibrationBlock(ObservingBlock):
 ## FocusBlock
 ##-------------------------------------------------------------------------
 class FocusBlock(ObservingBlock):
-    '''An observing block describing a calibration observation.
+    '''An observing block describing a focus observation.
     '''
     def __init__(self, target=None, pattern=None, instconfig=None,
                  detconfig=None, align=None, blocktype='Focus'):
