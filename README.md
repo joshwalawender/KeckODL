@@ -1,4 +1,4 @@
-# KeckODL
+# Observing Description Language
 
 The Keck Observing Description Language (ODL) is used to describe an observation for the Database Driven Observing Initiative (DDOI) which is part of the Data Services Initiative (DSI) project at Keck.
 
@@ -7,6 +7,66 @@ The Keck Observing Description Language (ODL) is used to describe an observation
 The ODL must be capable of encoding a complete set of instructions to run an observation without additional human decision making.  Human interaction may be needed for steps such as target acquisition (for example: aligning the target on the slit or running mask alignment).
 
 For normal operations, users will not interact directly with this language: it will be produced by the Observing Definition Tool and stored in the Observing Database. From there, observations will be retrieved and sent to the observing tools. An exception to this model is the possibility of linking our observing infrastructure to large surveys or to TOMs: in this case, it is likely that those users will produce observing sequences directly in the required format and submit them to our database using an API.
+
+
+# The Language
+
+Since the ODL is a language it should have elements of a language: vocabulary, syntax, grammar, and a written form.
+
+## Vocabulary
+
+#### High Level Concepts
+
+- `ObservingBlock` (OB): This is the atomic operation which the observer will execute at night.
+- `ObservingBlockList`: Just a simple ordered list of OBs.
+- `Target`: Observers know this because it inherits all properties of targets in star lists.
+- `Alignment`: This is how you put your target in the position you want it (i.e. in a slit).
+- `InstrumentConfig`: This is how the instrument is configured.
+- `DetectorConfig`: This is how the detector is configured.
+- `OffsetPattern`: The dither pattern to use during observation.
+
+The `InstrumentConfig` and `DetectorConfig` have been separated out as two concepts because the standard calibrations we take are based entirely on the `InstrumentConfig`.
+
+#### Low Level Concepts
+
+- Observing blocks have types:
+    - `ScienceBlock`
+    - `StandardStarBlock`
+    - `TelluricBlock`
+    - `CalibrationBlock`
+    - `FocusBlock` (e.g Mira or Autofoc)
+- Alignment can be done in multiple ways
+    - `BlindAlign`
+    - `GuiderAlign`
+    - `MaskAlign`
+- An offset pattern contains other concepts
+    - `OffsetFrame` (e.g. sky frame, instrument frame, slit frame)
+    - `TelescopeOffset`
+
+## Syntax and Grammar
+
+I won't lay out all the rules here, but for example, an `ObservingBlock` is comprised of:
+
+- 0 or 1 Targets
+- 1 OffsetPattern
+- 1 Instrument Configuration
+- 0 or more Detector Configurations
+- 0 or 1 Alignment
+
+The behavior of the system will depend on which of these are specified.
+
+The `ObservingBlockList` is **ordered**, so it can be used to describe an order of operations, but fundamentally, the observer simply selects an OB to execute, so no higher order scheduling is implemented here.  If we want scheduling that is more sophisticated that this, we simply add a higher level component (e.g. the "Minimum Schedulable Block" or MSB) which is an ordered list of OBs, but has some extra scheduling metadata attached to it.
+
+## Written Form
+
+YAML or JSON are easy written forms to implement because the language is composed of dictionaries (key-value pairs) and lists.  I used YAML because it allows for comments in case some advnaced users want to write the YAML form directly, but I expect that won't be common.
+
+There are some `__str__` representations which are more human readbale, but which are not complete specifications; they are meant to be reminders.
+
+In its final form, each instance of an object would be given a unique ID of some sort to identify it rather than using the name string as we do here.
+
+
+
 
 
 # Elements of the ODL
