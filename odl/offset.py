@@ -274,13 +274,21 @@ class OffsetPattern(UserList):
 
 
     def to_dict(self):
-        return {'OffsetPatterns': [{'name': self.name,
-                                    'repeat': self.repeat,
-                                    'offsets': [x.to_dict() for x in self.data]}]}
+        return {'name': self.name,
+                'repeat': self.repeat,
+                'offsets': [x.to_dict() for x in self.data]}
+
+
+    def to_yaml(self):
+        return yaml.dump(self.to_dict())
+
+
+    def to_DB(self):
+        return {'OffsetPatterns': [self.to_dict()]}
 
 
     def write(self, file):
-        '''Write the offset pattern to a YAML formatted file.
+        '''Write the offset pattern to a yaml formatted file.
         '''
         self.validate()
         p = Path(file).expanduser().absolute()
@@ -315,7 +323,7 @@ class OffsetPattern(UserList):
 
 
     def read(self, file):
-        '''Read targets from a YAML formatted file.
+        '''Read targets from a yaml formatted file.
         '''
         p = Path(file).expanduser().absolute()
         if p.exists() is False:

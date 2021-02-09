@@ -27,18 +27,18 @@ class InstrumentConfig():
 
     Note that some features of the reader for this class require a particular
     naming convention for the implementation of the sub-class.  The sub-class
-    should be in a package `keckODL.[instrument]` where `[instrument]` is the
+    should be in a package `odl.[instrument]` where `[instrument]` is the
     name of the instrument in lower case.  In addition, the name of the
     sub-class itself must be of the form `[Instrument]Config` where
     `[Instrument]` is the name of the instrument (in the instrument's chosen
-    case).  For example: `keckODL.kcwi.KCWIConfig` or
-    `keckODL.mosfire.MOSFIREConfig`.
+    case).  For example: `odl.kcwi.KCWIConfig` or
+    `odl.mosfire.MOSFIREConfig`.
     '''
     def __init__(self, name='GenericInstrumentConfig'):
         self.name = name
         # Determine instrument from class name.  This is needed so the class
         # name and the instrument property have a predictable relationship
-        namesearch = re.search("<class 'keckODL.(\w+).config.(\w+)Config'>",
+        namesearch = re.search("<class 'odl.(\w+).config.(\w+)Config'>",
                                str(self.__class__))
         self.package = namesearch.group(1)
         self.instrument = namesearch.group(2)
@@ -49,16 +49,20 @@ class InstrumentConfig():
 
 
     def to_dict(self):
-        return {'InstrumentConfigs': [{'name': self.name,
-                                       'instrument': self.instrument,
-                                       }]}
+        return {'name': self.name,
+                'instrument': self.instrument,
+                }
 
 
-    def to_YAML(self):
+    def to_yaml(self):
         '''Return string corresponding to a Detector Config Description
-        Language (DCDL) YAML entry.
+        Language (DCDL) yaml entry.
         '''
         return yaml.dump(self.to_dict())
+
+
+    def to_DB(self):
+        return {'InstrumentConfigs': [self.to_dict()]}
 
 
     def write(self, file):

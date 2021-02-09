@@ -4,6 +4,7 @@
 from pathlib import Path
 from astropy import units as u
 from collections import UserList
+import yaml
 
 
 class BlockError(Exception):
@@ -65,7 +66,8 @@ class ObservingBlock():
                          else [detconfig]
         self.align = align
         self.blocktype = blocktype
-        self.associatedblocks = associatedblocks
+        self.associatedblocks = associatedblocks if type(associatedblocks) in [list, tuple]\
+                                else [associatedblocks]
         self.guidestar = guidestar
         self.drp_args = drp_args
         self.ql_args = ql_args
@@ -73,6 +75,40 @@ class ObservingBlock():
 
     def validate(self):
         pass
+
+
+    def to_dict(self, usenames=False):
+        if usenames is True:
+            result = {'target': self.target.name,
+                      'pattern': self.pattern.name,
+                      'instconfig': self.instconfig.name,
+                      'detconfig': [d.name for d in self.detconfig],
+                      'align': str(self.align),
+                      'blocktype': self.blocktype,
+                      'associatedblocks': [str(b) for b in self.associatedblocks],
+                      'guidestar': self.guidestar,
+                      'drp_args': self.drp_args,
+                      'ql_args': self.ql_args,
+                     }
+        else:
+            result = {'target': 'None' if self.target is None else self.target.to_dict(),
+                      'pattern': self.pattern.to_dict(),
+                      'instconfig': self.instconfig.to_dict(),
+                      'detconfig': [('None' if d is None else d.to_dict()) for d in self.detconfig],
+                      'align': 'None' if self.align is None else self.align.to_dict(),
+                      'blocktype': self.blocktype,
+                      'associatedblocks': [str(b) for b in self.associatedblocks],
+                      'guidestar': self.guidestar,
+                      'drp_args': self.drp_args,
+                      'ql_args': self.ql_args,
+                     }
+        return result
+
+
+    def to_yaml(self):
+        '''Return string corresponding to an Observing Block yaml entry.
+        '''
+        return yaml.dump(self.to_dict())
 
 
     def estimate_time(self):
@@ -121,11 +157,11 @@ class ScienceBlock(ObservingBlock):
     '''
     def __init__(self, target=None, pattern=None, instconfig=None,
                  detconfig=None, align=None, blocktype='Science',
-                 associated=None,
+                 associatedblocks=None,
                  ):
         super().__init__(target=target, pattern=pattern, instconfig=instconfig,
-                         detconfig=detconfig, align=align, blocktype=blocktype)
-        self.associated = associated
+                         detconfig=detconfig, align=align, blocktype=blocktype,
+                         associatedblocks=associatedblocks)
 
 
 ##-------------------------------------------------------------------------
@@ -211,6 +247,10 @@ class ObservingBlockList(UserList):
         for instconfig in set(ics):
             calblocklist.extend( instconfig.cals() )
         return calblocklist
+
+
+    def to_yaml(self):
+        return yaml.dump([OB.to_dict() for OB in self.data])
 
 
     def __str__(self):

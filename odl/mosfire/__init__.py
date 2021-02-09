@@ -5,7 +5,7 @@ from ..offset import InstrumentFrame, TelescopeOffset, OffsetPattern, pmfm
 from ..alignment import MaskAlign
 
 from .config import MOSFIREConfig
-from .detector import MOSFIREDetectorConfig
+from .detector import MOSFIREDetectorConfig, default_acq, bright_acq
 
 
 ##-------------------------------------------------------------------------
@@ -57,14 +57,10 @@ def mira(filter='J', exptime=2, coadds=5, mask=None):
 ##-------------------------------------------------------------------------
 ## Standard Blocks
 ##-------------------------------------------------------------------------
-class MOSFIREMaskAlign(MaskAlign):
-    '''An object to hold information about a how to align a mask or long slit
-    which does not use a slit viewing camera.
+def MOSFIREMaskAlign(detconfig=default_acq, filter='J', takesky=True):
+    return MaskAlign(detconfig=detconfig, filter=filter, takesky=takesky)
 
-    Attributes
-    ----------
-    '''
-    def __init__(self, bright=False, detconfig=None, filter='J',
-                 takesky=True):
-        super().__init__(bright=bright, detconfig=detconfig,
-                         filter=filter, takesky=takesky)
+
+def MOSFIREBrightStarAlign(detconfig=bright_acq, filter='J', takesky=False):
+    return MaskAlign(detconfig=detconfig, filter=filter, takesky=takesky)
+

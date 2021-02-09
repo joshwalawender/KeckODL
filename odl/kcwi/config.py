@@ -87,24 +87,24 @@ class KCWIConfig(InstrumentConfig):
 
     def to_dict(self):
         output = super().to_dict()
-        output['InstrumentConfigs'][0]['slicer'] = self.slicer
-        output['InstrumentConfigs'][0]['bluegrating'] = self.bluegrating
-        output['InstrumentConfigs'][0]['bluefilter'] = self.bluefilter
-        output['InstrumentConfigs'][0]['bluenandsmask'] = self.bluenandsmask
-        output['InstrumentConfigs'][0]['bluefocus'] = self.bluefocus
-        output['InstrumentConfigs'][0]['bluecwave'] = self.bluecwave
-        output['InstrumentConfigs'][0]['bluepwave'] = self.bluepwave
-        output['InstrumentConfigs'][0]['redgrating'] = self.redgrating
-        output['InstrumentConfigs'][0]['redfilter'] = self.redfilter
-        output['InstrumentConfigs'][0]['rednandsmask'] = self.rednandsmask
-        output['InstrumentConfigs'][0]['redfocus'] = self.redfocus
-        output['InstrumentConfigs'][0]['redcwave'] = self.redcwave
-        output['InstrumentConfigs'][0]['redpwave'] = self.redpwave
-        output['InstrumentConfigs'][0]['calmirror'] = self.calmirror
-        output['InstrumentConfigs'][0]['calobj'] = self.calobj
-        output['InstrumentConfigs'][0]['polarizer'] = self.polarizer
-        output['InstrumentConfigs'][0]['arclamp'] = self.arclamp
-        output['InstrumentConfigs'][0]['domeflatlamp'] = self.domeflatlamp
+        output['slicer'] = self.slicer
+        output['bluegrating'] = self.bluegrating
+        output['bluefilter'] = self.bluefilter
+        output['bluenandsmask'] = self.bluenandsmask
+        output['bluefocus'] = self.bluefocus
+        output['bluecwave'] = self.bluecwave
+        output['bluepwave'] = self.bluepwave
+        output['redgrating'] = self.redgrating
+        output['redfilter'] = self.redfilter
+        output['rednandsmask'] = self.rednandsmask
+        output['redfocus'] = self.redfocus
+        output['redcwave'] = self.redcwave
+        output['redpwave'] = self.redpwave
+        output['calmirror'] = self.calmirror
+        output['calobj'] = self.calobj
+        output['polarizer'] = self.polarizer
+        output['arclamp'] = self.arclamp
+        output['domeflatlamp'] = self.domeflatlamp
         
         return output
 
