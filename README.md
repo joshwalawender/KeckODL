@@ -17,13 +17,17 @@ Since the ODL is a language it should have elements of a language: vocabulary, s
 
 #### High Level Concepts
 
-- `ObservingBlock` (OB): This is the atomic operation which the observer will execute at night.
+- An `ObservingBlock` (OB) is the atomic operation which the observer will execute at night.  An OB consists of the following actions:
+    - Slew to a target (if specified).
+    - Align on that target (again if called for) using one of a set of alignment strategies defined by the observatory.  
+    - Configure the instrument components to a specified state for science.
+    - Execute a series of telescope offsets in a given pattern while taking science exposures at each point in the pattern and repeat this pattern multiple times if specified.
 - `ObservingBlockList`: Just a simple ordered list of OBs.
-- `Target`: Observers know this because it inherits all properties of targets in star lists.
-- `Alignment`: This is how you put your target in the position you want it (i.e. in a slit).
+- `Target`: A description of where the OB should take place in the sky.  This inherits all features of the existing Keck Star List.
+- `Alignment`: This is how you put your target in the position you want it (i.e. in a slit).  Advanced users can specify parameters for the alignment, but those parameters will default to reasonable values if not specified.
 - `InstrumentConfig`: This is how the instrument is configured.
 - `DetectorConfig`: This is how the detector is configured.
-- `OffsetPattern`: The dither pattern to use during observation.
+- `OffsetPattern`: The dither pattern to use during observation including the number of times to repeat that pattern.  Advanced users can build any pattern they want.
 
 The `InstrumentConfig` and `DetectorConfig` have been separated out as two concepts because the standard calibrations we take are based entirely on the `InstrumentConfig`.
 
