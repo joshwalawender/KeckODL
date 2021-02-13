@@ -69,13 +69,6 @@ class Alignment():
 class BlindAlign(Alignment):
     '''An object to hold information about a how to align on a target.  This is
     intended to be used for simple blind alignment strategies (no feedback).
-
-    Attributes
-    ----------
-    slew : boolean
-        Slew the telescope?  If True, then this is a normal blind acquisition.
-        If False, this implies that the telescope is already aligned and should
-        not be moved.
     '''
     def __init__(self):
         name = 'Blind Align'
