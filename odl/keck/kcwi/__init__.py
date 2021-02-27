@@ -1,7 +1,7 @@
 from astropy import units as u
 
-from ..block import FocusBlock
-from ..offset import InstrumentFrame, pmfm
+from odl.block import FocusBlock
+from odl.offset import InstrumentFrame, pmfm
 
 from .config import KCWIConfig
 from .detector import (KCWIblueDetectorConfig, KCWIredDetectorConfig,

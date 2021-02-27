@@ -5,7 +5,7 @@ import re
 from warnings import warn
 from copy import deepcopy
 
-from ..detector_config import VisibleDetectorConfig
+from odl.detector_config import VisibleDetectorConfig
 
 
 ##-------------------------------------------------------------------------

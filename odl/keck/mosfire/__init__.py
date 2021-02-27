@@ -1,8 +1,8 @@
 from astropy import units as u
 
-from ..block import FocusBlock
-from ..offset import InstrumentFrame, TelescopeOffset, OffsetPattern, pmfm
-from ..alignment import MaskAlign
+from odl.block import FocusBlock
+from odl.offset import InstrumentFrame, TelescopeOffset, OffsetPattern, pmfm
+from odl.alignment import MaskAlign
 
 from .config import MOSFIREConfig
 from .detector import MOSFIREDetectorConfig, default_acq, bright_acq

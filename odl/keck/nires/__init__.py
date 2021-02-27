@@ -1,7 +1,7 @@
 from astropy import units as u
 
-from ..block import FocusBlock
-from ..offset import InstrumentFrame, TelescopeOffset, OffsetPattern, pmfm
+from odl.block import FocusBlock
+from odl.offset import InstrumentFrame, TelescopeOffset, OffsetPattern, pmfm
 
 from .config import NIRESConfig
 from .detector import NIRESScamDetectorConfig, NIRESSpecDetectorConfig

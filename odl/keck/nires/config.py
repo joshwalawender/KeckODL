@@ -8,10 +8,10 @@ from copy import deepcopy
 from astropy import units as u
 
 
-from ..instrument_config import InstrumentConfig
-from ..offset import Stare
-from ..block import CalibrationBlock, ObservingBlockList
-from ..target import DomeFlats
+from odl.instrument_config import InstrumentConfig
+from odl.offset import Stare
+from odl.block import CalibrationBlock, ObservingBlockList
+from odl.target import DomeFlats
 from .detector import NIRESScamDetectorConfig, NIRESSpecDetectorConfig
 
 
