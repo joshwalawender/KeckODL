@@ -5,6 +5,7 @@ from pathlib import Path
 import re
 from warnings import warn
 import yaml
+from astropy.io import fits
 
 
 class DetectorConfigError(Exception): pass
@@ -45,6 +46,17 @@ class DetectorConfig():
 
     def validate(self):
         pass
+
+
+    def to_header(self):
+        h = fits.Header()
+        h['DCNAME'] = (self.name, 'Detector Config Name')
+        h['DCINSTR'] = (self.instrument, 'Detector Config Instrument Name')
+        h['DCDET'] = (self.detector, 'Detector Config Detector Name')
+        h['DCEXPT'] = (self.exptime, 'Detector Config Exptime (sec)')
+        h['DCNEXP'] = (self.nexp, 'Detector Config Number of Exposures')
+        h['DCRDMODE'] = (self.readoutmode, 'Detector Config Readout Mode')
+        return h
 
 
     def to_dict(self):

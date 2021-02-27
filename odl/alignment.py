@@ -5,6 +5,7 @@ from pathlib import Path
 import re
 from warnings import warn
 import yaml
+from astropy.io import fits
 
 
 ##-------------------------------------------------------------------------
@@ -34,6 +35,12 @@ class Alignment():
 
     def validate(self):
         pass
+
+
+    def to_header(self):
+        h = fits.Header()
+        h['ALNAME'] = (self.name, 'Alignment Name')
+        return h
 
 
     def to_dict(self):

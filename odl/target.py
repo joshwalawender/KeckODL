@@ -8,6 +8,7 @@ import yaml
 from astropy import units as u
 from astropy import coordinates as c
 from astropy.time import Time
+from astropy.io import fits
 
 
 # List the valid values for the rotator mode, object types, and PA.
@@ -338,6 +339,33 @@ class Target():
     ##-------------------------------------------------------------------------
     ## Output a TDL yaml snippet
     ##-------------------------------------------------------------------------
+    def to_header(self):
+        '''Return a `hits.Header` object with the target info.
+        '''
+        coord = self.coord()
+        ra, dec = coord.to_string('hmsdms', sep=":", precision=1).split()
+        h = fits.Header()
+        h['TNAME'] = (self.name, 'Target name')
+        h['TRA'] = (ra, 'Right ascension')
+        h['TDEC'] = (dec, 'Declination')
+        h['TEQUINOX'] = (coord.equinox.byear, 'Equinox')
+        h['TEPOCH'] = (coord.obstime.byear, 'Epoch')
+        h['TFRAME'] = (coord.frame.name, 'Frame')
+        h['TROTMODE'] = (self.rotmode, 'Rotator mode')
+        h['TPA'] = (self.PA, 'Rotator Position Angle')
+        h['TRAOFF'] = (self.RAOffset, 'RA Offset')
+        h['TDEDOFF'] = (self.DecOffset, 'Dec Offset')
+        h['TPMRA'] = (self.PMRA, 'RA Proper Motion')
+        h['TPMDec'] = (self.PMDec, 'Dec Proper Motion')
+        for band in self.mag.keys():
+            if self.mag.get(band, None) is not None:
+                h[f'T{band:4s}MAG'] = (self.mag.get(band), f'{band} magnitude')
+        h['TDRA'] = (self.dra, 'RA Differential Tracking Rate')
+        h['TDDEC'] = (self.ddec, 'Dec Differential Tracking Rate')
+        h['TCOMMENT'] = (self.comment, 'Comment')
+        return h
+
+
     def to_dict(self):
         '''Return dictionary corresponding to a Target Description Language
         (TDL) entry.

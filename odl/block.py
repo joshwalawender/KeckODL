@@ -3,6 +3,7 @@
 ## Import General Tools
 from pathlib import Path
 from astropy import units as u
+from astropy.io import fits
 from collections import UserList
 import yaml
 
@@ -55,7 +56,7 @@ class ObservingBlock():
     ql_args : a dict containing arguments for the quick look pipeline
     '''
     def __init__(self, target=None, pattern=None, instconfig=None,
-                 detconfig=None, align=None, blocktype=None,
+                 detconfig=None, align=None, blocktype='Unknown',
                  associatedblocks=None, guidestar=None,
                  drp_args=None, ql_args=None,
                  ):
@@ -75,6 +76,20 @@ class ObservingBlock():
 
     def validate(self):
         pass
+
+
+    def to_header(self):
+        h = fits.Header()
+        h['OBTYPE'] = (self.blocktype, 'OB Type')
+        if self.target is not None:
+            h += self.target.to_header()
+        if self.pattern is not None:
+            h += self.pattern.to_header()
+        if self.instconfig is not None:
+            h += self.instconfig.to_header()
+        if self.align is not None:
+            h += self.align.to_header()
+        return h
 
 
     def to_dict(self, usenames=False):
@@ -138,9 +153,8 @@ class ObservingBlock():
 
 
     def __str__(self):
-        return (f'{str(self.target):15s}|{str(self.pattern):22s}|'
-                f'{str(self.instconfig):45s}|{str(self.detconfig):36s}|'
-                f'{str(self.align):20s}')
+        return (f'{self.blocktype}, {str(self.target)}, {str(self.pattern)}, '
+                f'{str(self.instconfig)}, {str(self.detconfig)}')
 
 
     def __repr__(self):
@@ -260,7 +274,7 @@ class ObservingBlockList(UserList):
                   (f'{"-"*15:15s}|{"-"*22:22}|{"-"*45:45}|'
                    f'{"-"*36:36s}|{"-"*20:20s}')]
         for item in self.data:
-            output.append(item.__str__())
+            output.append(item.__repr__())
         return "\n".join(output)
 
 
@@ -271,6 +285,6 @@ class ObservingBlockList(UserList):
                   (f'{"-"*15:15s}|{"-"*22:22}|{"-"*45:45}|'
                    f'{"-"*36:36s}|{"-"*20:20s}')]
         for item in self.data:
-            output.append(item.__str__())
+            output.append(item.__repr__())
         return "\n".join(output)
 

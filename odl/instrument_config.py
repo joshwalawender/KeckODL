@@ -4,6 +4,7 @@
 import re
 from pathlib import Path
 from astropy import units as u
+from astropy.io import fits
 import yaml
 
 
@@ -40,13 +41,24 @@ class InstrumentConfig():
         # name and the instrument property have a predictable relationship
         namesearch = re.search("<class 'odl.(\w+).config.(\w+)Config'>",
                                str(self.__class__))
-        self.package = namesearch.group(1)
-        self.instrument = namesearch.group(2)
+        if namesearch is not None:
+            self.package = namesearch.group(1)
+            self.instrument = namesearch.group(2)
+        else:
+            self.package = ''
+            self.instrument = self.__repr__()
 
 
     def validate(self):
         pass
 
+
+    def to_header(self):
+        h = fits.Header()
+        h['ICNAME'] = (self.name, 'Instrument Config Name')
+        h['ICPKG'] = (self.package, 'Instrument Config Package Name')
+        h['ICINST'] = (self.instrument, 'Instrument Config Instrument Name')
+        return h
 
     def to_dict(self):
         return {'name': self.name,

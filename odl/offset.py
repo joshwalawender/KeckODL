@@ -4,6 +4,7 @@
 import sys
 from pathlib import Path
 from astropy import units as u
+from astropy.io import fits
 from collections import UserList
 from warnings import warn
 import yaml
@@ -277,6 +278,21 @@ class OffsetPattern(UserList):
         return {'name': self.name,
                 'repeat': self.repeat,
                 'offsets': [x.to_dict() for x in self.data]}
+
+
+    def to_header(self):
+        h = fits.Header()
+        h['OPNAME'] = (self.name, 'Offset Pattern Name')
+        h['OPREPEAT'] = (self.repeat, 'Offset Pattern Repeats')
+        h['OPLENGTH'] = (len(self.data), 'Number of Offset Positions')
+        for i, patt in enumerate(self.data):
+            h[f'OP{i+1:02d}NAME'] = (patt.posname, f'Position {i+1:02d} Name')
+            h[f'OP{i+1:02d}DX'] = (patt.dx.value, f'Position {i+1:02d} dX (arcsec)')
+            h[f'OP{i+1:02d}DY'] = (patt.dy.value, f'Position {i+1:02d} dY (arcsec)')
+            h[f'OP{i+1:02d}REL'] = (patt.relative, f'Position {i+1:02d} Relative?')
+            h[f'OP{i+1:02d}FRM'] = (patt.frame.name, f'Position {i+1:02d} Frame')
+            h[f'OP{i+1:02d}GUID'] = (patt.guide, f'Position {i+1:02d} Guide?')
+        return h
 
 
     def to_yaml(self):
