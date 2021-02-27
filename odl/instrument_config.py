@@ -39,13 +39,15 @@ class InstrumentConfig():
         self.name = name
         # Determine instrument from class name.  This is needed so the class
         # name and the instrument property have a predictable relationship
-        namesearch = re.search("<class 'odl.(\w+).config.(\w+)Config'>",
+        namesearch = re.search("<class '.+\.(\w+)\.(\w+)\.config\.(\w+)Config'>",
                                str(self.__class__))
         if namesearch is not None:
-            self.package = namesearch.group(1)
-            self.instrument = namesearch.group(2)
+            self.observatory = namesearch.group(1)
+            self.package = namesearch.group(2)
+            self.instrument = namesearch.group(3)
         else:
-            self.package = ''
+            self.observatory = 'Unknown'
+            self.package = 'Unknown'
             self.instrument = self.__repr__()
 
 
