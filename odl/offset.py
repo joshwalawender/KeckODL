@@ -366,7 +366,7 @@ class OffsetPattern(UserList):
 ##-------------------------------------------------------------------------
 ## Pre-Defined Patterns
 ##-------------------------------------------------------------------------
-def Stare(repeat=1):
+def Stare(repeat=1, guide=True):
     '''Return a simple Stare pattern with the specified number of repeats.
 
     Attributes
@@ -374,7 +374,8 @@ def Stare(repeat=1):
     repeat : int
         The number of times to repeat this pattern.
     '''
-    offset1 = TelescopeOffset(dx=0, dy=0, posname='base', frame=SkyFrame())
+    offset1 = TelescopeOffset(dx=0, dy=0, posname='base', frame=SkyFrame(),
+                              guide=guide)
     return OffsetPattern([offset1], name='Stare', repeat=repeat)
 
 
