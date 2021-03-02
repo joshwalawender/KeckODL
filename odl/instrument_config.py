@@ -35,7 +35,7 @@ class InstrumentConfig():
     case).  For example: `odl.kcwi.KCWIConfig` or
     `odl.mosfire.MOSFIREConfig`.
     '''
-    def __init__(self, name='GenericInstrumentConfig'):
+    def __init__(self, name='GenericInstrumentConfig', obswl=0.5*u.micron):
         self.name = name
         # Determine instrument from class name.  This is needed so the class
         # name and the instrument property have a predictable relationship
@@ -49,6 +49,7 @@ class InstrumentConfig():
             self.observatory = 'Unknown'
             self.package = 'Unknown'
             self.instrument = self.__repr__()
+        self.obswl = obswl
 
 
     def validate(self):
@@ -60,11 +61,13 @@ class InstrumentConfig():
         h['ICNAME'] = (self.name, 'Instrument Config Name')
         h['ICPKG'] = (self.package, 'Instrument Config Package Name')
         h['ICINST'] = (self.instrument, 'Instrument Config Instrument Name')
+        h['ICOBSWL'] = (self.obswl.to(u.micron).value, 'Instrument Config Wavelength (micron)')
         return h
 
     def to_dict(self):
         return {'name': self.name,
                 'instrument': self.instrument,
+                'obswl': self.obswl,
                 }
 
 
