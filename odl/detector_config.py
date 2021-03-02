@@ -34,8 +34,7 @@ class DetectorConfig():
         The number of exposures.
     '''
     def __init__(self, instrument=None, detector='', exptime=None,
-                 nexp=1, readoutmode=None, name=None):
-        self.name = name
+                 nexp=1, readoutmode=None):
         self.instrument = instrument
         self.detector = detector
         self.name = 'GenericDetectorConfig'
@@ -87,7 +86,7 @@ class DetectorConfig():
             FO.write(yaml.dump([self.to_dict()]))
 
 
-    def estimate_clock_time(self):
+    def estimate_duration(self):
         return self.exptime
 
 
@@ -112,9 +111,9 @@ class IRDetectorConfig(DetectorConfig):
     coadds : int
         The number of coadds (if applicable)
     '''
-    def __init__(self, name=None, instrument='GenericIR', detector='',
+    def __init__(self, instrument='GenericIR', detector='',
                  exptime=None, nexp=1, readoutmode='CDS', coadds=1):
-        super().__init__(name=name, instrument=instrument, detector=detector,
+        super().__init__(instrument=instrument, detector=detector,
                          exptime=exptime, nexp=nexp, readoutmode=readoutmode)
         self.coadds = coadds
         if name is None:
@@ -136,9 +135,9 @@ class IRDetectorConfig(DetectorConfig):
 
 
 ##-------------------------------------------------------------------------
-## VisibleDetectorConfig
+## CCDDetectorConfig
 ##-------------------------------------------------------------------------
-class VisibleDetectorConfig(DetectorConfig):
+class CCDDetectorConfig(DetectorConfig):
     '''An object to hold information about a visible light detector
     configuration.  This is an abstract class which we expect to be subclassed
     to a particular instrument/detector.
@@ -158,10 +157,10 @@ class VisibleDetectorConfig(DetectorConfig):
     window : str
         The window, parsed as x1:x2,y1:y2
     '''
-    def __init__(self, name=None, instrument='GenericVis', detector='',
+    def __init__(self, instrument='GenericCCD', detector='',
                  exptime=None, nexp=1, readoutmode=None, ampmode=None,
                  dark=False, binning='1x1', window=None):
-        super().__init__(name=name, instrument=instrument, detector=detector,
+        super().__init__(instrument=instrument, detector=detector,
                          exptime=exptime, nexp=nexp, readoutmode=readoutmode)
         self.ampmode = ampmode
         self.dark = dark
@@ -201,7 +200,7 @@ class VisibleDetectorConfig(DetectorConfig):
         return 0
 
 
-    def estimate_clock_time(self):
+    def estimate_duration(self):
         total_time = self.erase_time()\
                    + self.exptime\
                    + self.readout_time()\
