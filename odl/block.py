@@ -126,21 +126,13 @@ class ObservingBlock():
         return yaml.dump(self.to_dict())
 
 
-    def estimate_time(self):
+    def estimate_duration(self):
         '''Estimate the wall clock time to complete this block.
         '''
-        if type(self.detconfig) in [list, tuple]:
-            t = [dc.estimate_clock_time() for dc in self.detconfig]
-            detector_time = max(t)
-            e = [dc.exptime*dc.nexp for dc in self.detconfig]
-            exposure_time = max(e)
-        else:
-            detector_time = self.detconfig.estimate_clock_time()
-            exposure_time = self.detconfig.exptime
-        return {'shutter open time': self.pattern.repeat * len(self.pattern) *\
-                                     exposure_time,
-                'wall clock time': self.pattern.repeat * len(self.pattern) *\
-                                   detector_time}
+        t = [dc.estimate_duration() for dc in self.detconfig]
+        detector_time = max(t)
+        duration = self.pattern.repeat * len(self.pattern) * detector_time
+        return duration
 
 
     def cals(self):
