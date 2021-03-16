@@ -37,10 +37,14 @@ class DetectorConfig():
                  nexp=1, readoutmode=None):
         self.instrument = instrument
         self.detector = detector
-        self.name = 'GenericDetectorConfig'
         self.exptime = exptime
         self.nexp = nexp
         self.readoutmode = readoutmode
+        self.set_name()
+
+
+    def set_name(self):
+        self.name = f'{self.instrument}{self.detector} {self.exptime:.0f}s x{self.nexp}'
 
 
     def validate(self):
@@ -116,10 +120,7 @@ class IRDetectorConfig(DetectorConfig):
         super().__init__(instrument=instrument, detector=detector,
                          exptime=exptime, nexp=nexp, readoutmode=readoutmode)
         self.coadds = coadds
-        if name is None:
-            self.set_name()
-        else:
-            self.name = name
+        self.set_name()
 
 
     def set_name(self):
@@ -166,10 +167,7 @@ class CCDDetectorConfig(DetectorConfig):
         self.dark = dark
         self.binning = binning
         self.window = window
-        if name is None:
-            self.set_name()
-        else:
-            self.name = name
+        self.set_name()
 
 
     def set_name(self):
