@@ -28,7 +28,7 @@ class NIRESConfig(InstrumentConfig):
     '''An object to hold information about NIRES configuration.
     '''
     def __init__(self, detconfig=None):
-        super().__init__()
+        super().__init__(instrument='NIRES')
         self.name = 'NIRES Instrument Config'
 
     ##-------------------------------------------------------------------------

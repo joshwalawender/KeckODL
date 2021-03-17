@@ -27,7 +27,7 @@ lamp_exptimes = {'FEAR': 30, 'THAR': 45, 'CONT': 6}
 class KCWIConfig(InstrumentConfig):
     '''An object to hold information about KCWI Blue+Red configuration.
     '''
-    def __init__(self, name=None, slicer='medium', 
+    def __init__(self, slicer='medium', 
                  bluegrating='BH3', bluefilter='KBlue',
                  bluecwave=4800, bluepwave=None,
                  bluenandsmask=False, bluefocus=None,
@@ -36,7 +36,7 @@ class KCWIConfig(InstrumentConfig):
                  rednandsmask=False, redfocus=None,
                  calmirror='Sky', calobj='Dark', arclamp=None,
                  domeflatlamp=None, polarizer='Sky'):
-        super().__init__(name=name)
+        super().__init__(instrument='KCWI')
         self.slicer = slicer
         self.polarizer = polarizer
 

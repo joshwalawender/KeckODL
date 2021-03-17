@@ -29,7 +29,7 @@ class MOSFIREConfig(InstrumentConfig):
     '''
     def __init__(self, mode='spectroscopy', filter='Y',
                  mask=None, alignmask=False, miramask=False):
-        super().__init__()
+        super().__init__(instrument='MOSFIRE')
         self.mode = mode
         self.filter = filter
         self.mask = mask
