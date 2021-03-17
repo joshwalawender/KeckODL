@@ -50,15 +50,10 @@ class ObservingBlock():
     associatedblocks : list
 
     guidestar : an `astropy.coordinates.SkyCoord` instance
-
-    drp_args : a dict containing arguments for the data reduction pipeline
-
-    ql_args : a dict containing arguments for the quick look pipeline
     '''
     def __init__(self, target=None, pattern=None, instconfig=None,
                  detconfig=None, align=None, blocktype='Unknown',
                  associatedblocks=None, guidestar=None,
-                 drp_args=None, ql_args=None,
                  ):
         self.target = target
         self.pattern = pattern
@@ -70,8 +65,6 @@ class ObservingBlock():
         self.associatedblocks = associatedblocks if type(associatedblocks) in [list, tuple]\
                                 else [associatedblocks]
         self.guidestar = guidestar
-        self.drp_args = drp_args
-        self.ql_args = ql_args
 
 
     def validate(self):
@@ -102,8 +95,6 @@ class ObservingBlock():
                       'blocktype': self.blocktype,
                       'associatedblocks': [str(b) for b in self.associatedblocks],
                       'guidestar': self.guidestar,
-                      'drp_args': self.drp_args,
-                      'ql_args': self.ql_args,
                      }
         else:
             result = {'target': 'None' if self.target is None else self.target.to_dict(),
@@ -114,8 +105,6 @@ class ObservingBlock():
                       'blocktype': self.blocktype,
                       'associatedblocks': [str(b) for b in self.associatedblocks],
                       'guidestar': self.guidestar,
-                      'drp_args': self.drp_args,
-                      'ql_args': self.ql_args,
                      }
         return result
 
